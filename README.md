@@ -22,7 +22,7 @@ To make the setup process as easy as possible, this project includes automated s
 4. The script will automatically create a virtual environment, install Flask, initialize the database, and start the server.
 
 **For Windows users:**
-1. Clone the repository to your local machine.
+1. Clone the repository.
 2. Open Command Prompt and navigate to the project folder.
 3. Run the setup script: `setup.bat`
 4. The script will automatically create a virtual environment, install Flask, initialize the database, and start the server.
