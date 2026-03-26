@@ -6,22 +6,38 @@
     <title>Register</title>
 </head>
 <body>
-    <h1>Register</h1>
+    <header>
+        <h1>Register</h1>
+    </header>
 
-    {% if error_message %}
-    <p>{{ error_message }}</p>
-    {% endif %}
+    <main>
+        {% if error_message %}
+        <p>{{ error_message }}</p>
+        {% endif %}
 
-    <form method="post" action="{{ url_for('auth.register') }}">
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" required>
+        <form method="post" action="{{ url_for('auth.register') }}">
+            <p>
+                <label for="username">Username</label>
+            </p>
+            <p>
+                <input id="username" name="username" type="text" required>
+            </p>
 
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" required>
+            <p>
+                <label for="password">Password</label>
+            </p>
+            <p>
+                <input id="password" name="password" type="password" required>
+            </p>
 
-        <button type="submit">Register</button>
-    </form>
+            <p>
+                <button type="submit">Register</button>
+            </p>
+        </form>
+    </main>
 
-    <p><a href="{{ url_for('auth.login') }}">Go to login</a></p>
+    <nav>
+        <p><a href="{{ url_for('auth.login') }}">Go to login</a></p>
+    </nav>
 </body>
 </html>

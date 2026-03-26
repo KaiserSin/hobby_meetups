@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Meetup</title>
+</head>
+<body>
+    <header>
+        <h1>Create Meetup</h1>
+    </header>
+
+    <main>
+        {% if error_message %}
+        <p>{{ error_message }}</p>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('meetups.create_meetup') }}">
+            <p>
+                <label for="title">Title</label>
+            </p>
+            <p>
+                <input id="title" name="title" type="text" required>
+            </p>
+
+            <p>
+                <label for="description">Description</label>
+            </p>
+            <p>
+                <textarea id="description" name="description" rows="5" cols="40" required></textarea>
+            </p>
+
+            <p>
+                <label for="event_time">Date and time</label>
+            </p>
+            <p>
+                <input id="event_time" name="event_time" type="datetime-local" required>
+            </p>
+
+            <p>
+                <label for="location">Location</label>
+            </p>
+            <p>
+                <input id="location" name="location" type="text" required>
+            </p>
+
+            <p>
+                <label for="category_id">Category</label>
+            </p>
+            <p>
+                <select id="category_id" name="category_id" required>
+                    <option value="">Select a category</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </p>
+
+            <p>
+                <button type="submit">Create meetup</button>
+            </p>
+        </form>
+    </main>
+
+    <nav>
+        <p><a href="{{ url_for('meetups.index') }}">Back to all meetups</a></p>
+    </nav>
+</body>
+</html>
