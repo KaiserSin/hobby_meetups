@@ -29,11 +29,7 @@ class UserService:
             method="pbkdf2:sha256",
         )
         user_id = self.user_repository.save_user(clean_username, password_hash)
-
-        return {
-            "id": user_id,
-            "username": clean_username,
-        }
+        return self.user_repository.get_user_by_id(user_id)
 
     def authenticate_user(self, username, password):
         clean_username = username.strip()
@@ -43,7 +39,7 @@ class UserService:
             raise UserValidationError("Username and password are required.")
 
         user = self.user_repository.find_by_username(clean_username)
-        if user is None or not check_password_hash(user["password_hash"], clean_password):
+        if user is None or not check_password_hash(user.password_hash, clean_password):
             raise AuthenticationError("Invalid username or password.")
 
         return user

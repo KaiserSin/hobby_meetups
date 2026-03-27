@@ -3,7 +3,7 @@ import os
 from flask import Flask
 
 from infrastructure.database import init_app, init_db
-from presentation.routes import auth_blueprint
+from presentation.routes import auth_blueprint, meetups_blueprint
 
 
 def create_app():
@@ -15,6 +15,7 @@ def create_app():
 
     init_app(app)
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(meetups_blueprint)
 
     with app.app_context():
         init_db()

@@ -1,1 +1,3 @@
 instance/hobby_meetups.db
+.venv/
+__pycache__/
