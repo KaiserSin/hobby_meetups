@@ -11,6 +11,10 @@
     </header>
 
     <main>
+        {% if status_message %}
+        <p>{{ status_message }}</p>
+        {% endif %}
+
         <section>
             <h2>Search Meetups</h2>
             <form method="get" action="{{ url_for('meetups.index') }}">

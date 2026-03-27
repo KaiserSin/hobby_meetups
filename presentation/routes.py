@@ -28,7 +28,7 @@ def register():
 
         try:
             user_service.register_user(username, password)
-            return redirect(url_for("auth.login", registered="1"))
+            return redirect(url_for("meetups.index", status="registered"))
         except UserValidationError as error:
             return render_template("register.html", error_message=str(error))
 
@@ -44,7 +44,7 @@ def login():
         try:
             user = user_service.authenticate_user(username, password)
             session["user_id"] = user.id
-            return redirect(url_for("auth.login", logged_in="1"))
+            return redirect(url_for("meetups.index", status="logged_in"))
         except UserValidationError as error:
             return render_template(
                 "login.html",
@@ -83,8 +83,21 @@ def logout():
 @meetups_blueprint.route("/")
 def index():
     search_query = request.args.get("search_query", "").strip()
+    status = request.args.get("status")
+    status_message = None
+
+    if status == "registered":
+        status_message = "Registration successful."
+    elif status == "logged_in":
+        status_message = "Login successful."
+
     meetups = meetup_service.list_meetups(search_query)
-    return render_template("index.html", meetups=meetups, search_query=search_query)
+    return render_template(
+        "index.html",
+        meetups=meetups,
+        search_query=search_query,
+        status_message=status_message,
+    )
 
 
 @meetups_blueprint.route("/meetups/<int:meetup_id>")
@@ -94,13 +107,20 @@ def meetup_detail(meetup_id):
     except MeetupNotFoundError:
         abort(404)
 
+    current_user_id = session.get("user_id")
+    is_owner = current_user_id == meetup.user_id
+
     status_message = None
     if request.args.get("status") == "join_unavailable":
-        status_message = "This feature is not part of the current deadline."
+        status_message = (
+            "Joining meetups, comments for organizers, and user profile pages "
+            "are not implemented yet."
+        )
 
     return render_template(
         "meetup_detail.html",
         meetup=meetup,
+        is_owner=is_owner,
         status_message=status_message,
         error_message=None,
     )

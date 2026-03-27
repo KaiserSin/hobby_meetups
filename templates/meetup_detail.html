@@ -42,7 +42,14 @@
 
     <nav>
         <p><a href="{{ url_for('meetups.index') }}">Back to all meetups</a></p>
+        {% if is_owner %}
         <p><a href="{{ url_for('meetups.edit_meetup', meetup_id=meetup.id) }}">Edit meetup</a></p>
+        <form method="post" action="{{ url_for('meetups.delete_meetup', meetup_id=meetup.id) }}">
+            <p>
+                <button type="submit">Delete meetup</button>
+            </p>
+        </form>
+        {% endif %}
     </nav>
 </body>
 </html>

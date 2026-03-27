@@ -1,0 +1,28 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS meetups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES users(id),
+    category_id INTEGER REFERENCES categories(id),
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    event_time TIMESTAMP NOT NULL,
+    location TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS join_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    meetup_id INTEGER REFERENCES meetups(id),
+    user_id INTEGER REFERENCES users(id),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

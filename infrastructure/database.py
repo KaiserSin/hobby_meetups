@@ -1,38 +1,9 @@
+from pathlib import Path
 import sqlite3
 
 from flask import current_app, g
 
-
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS meetups (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER REFERENCES users(id),
-    category_id INTEGER REFERENCES categories(id),
-    title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    event_time TIMESTAMP NOT NULL,
-    location TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS join_events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    meetup_id INTEGER REFERENCES meetups(id),
-    user_id INTEGER REFERENCES users(id),
-    comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-"""
+INFRASTRUCTURE_DIR = Path(__file__).resolve().parent
 
 
 def get_db():
@@ -54,9 +25,17 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
-    db.executescript(SCHEMA)
+    schema_sql = _read_sql_file("schema.sql")
+    seed_categories_sql = _read_sql_file("seed_categories.sql")
+    db.executescript(schema_sql)
+    db.executescript(seed_categories_sql)
     db.commit()
 
 
 def init_app(app):
     app.teardown_appcontext(close_db)
+
+
+def _read_sql_file(filename):
+    sql_file_path = INFRASTRUCTURE_DIR / filename
+    return sql_file_path.read_text(encoding="utf-8")
