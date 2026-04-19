@@ -134,18 +134,33 @@ def user_profile(username):
 @app_blueprint.route("/meetups/<int:meetup_id>")
 def meetup_detail(meetup_id):
     meetup = _get_meetup_or_404(meetup_id)
-    is_owner = _current_user_id() == meetup.user_id
+    current_user_id = _current_user_id()
+    is_owner = current_user_id == meetup.user_id
+    join_events = meetup_service.list_join_events_for_meetup(meetup_id)
+    has_joined = current_user_id is not None and any(
+        join_event["user_id"] == current_user_id for join_event in join_events
+    )
 
     status_message = None
-    if request.args.get("status") == "join_unavailable":
-        status_message = "Joining meetups and comments for organizers are not implemented yet."
+    error_message = None
+    status = request.args.get("status")
+    if status == "joined":
+        status_message = "You joined this meetup."
+    elif status == "already_joined":
+        error_message = "You have already joined this meetup."
+    elif status == "join_not_allowed":
+        error_message = "You cannot join your own meetup."
 
     return render_template(
         "meetup_detail.html",
         meetup=meetup,
         is_owner=is_owner,
+        join_events=join_events,
+        can_join=current_user_id is not None and not is_owner and not has_joined,
+        has_joined=has_joined,
+        show_joined_note=has_joined and status not in {"joined", "already_joined"},
         status_message=status_message,
-        error_message=None,
+        error_message=error_message,
     )
 
 
@@ -231,12 +246,24 @@ def delete_meetup(meetup_id):
 
 @app_blueprint.route("/meetups/<int:meetup_id>/join", methods=["POST"])
 def join_meetup(meetup_id):
-    _get_meetup_or_404(meetup_id)
+    meetup = _get_meetup_or_404(meetup_id)
+    user_id = _current_user_id()
+    if user_id is None:
+        return redirect(url_for("app.login"))
+
+    if meetup.user_id == user_id:
+        return redirect(url_for("app.meetup_detail", meetup_id=meetup_id, status="join_not_allowed"))
+
+    if meetup_service.has_user_joined_meetup(meetup_id, user_id):
+        return redirect(url_for("app.meetup_detail", meetup_id=meetup_id, status="already_joined"))
+
+    comment = request.form.get("comment", "")
+    meetup_service.join_meetup(meetup_id, user_id, comment)
 
     return redirect(
         url_for(
             "app.meetup_detail",
             meetup_id=meetup_id,
-            status="join_unavailable",
+            status="joined",
         )
     )

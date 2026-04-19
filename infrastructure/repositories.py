@@ -80,6 +80,26 @@ class MeetupRepository:
         query = f"{MEETUP_SELECT_SQL}\nWHERE meetups.user_id = ?\nORDER BY meetups.event_time"
         return self._list_meetups(query, (user_id,))
 
+    def list_join_events_for_meetup(self, meetup_id):
+        cursor = get_db().execute(
+            """
+            SELECT join_events.user_id, users.username, join_events.comment
+            FROM join_events
+            JOIN users ON users.id = join_events.user_id
+            WHERE join_events.meetup_id = ?
+            ORDER BY join_events.created_at, join_events.id
+            """,
+            (meetup_id,),
+        )
+        return [
+            {
+                "user_id": row["user_id"],
+                "username": row["username"],
+                "comment": row["comment"],
+            }
+            for row in cursor.fetchall()
+        ]
+
     def get_meetup_by_id(self, meetup_id):
         cursor = get_db().execute(
             f"{MEETUP_SELECT_SQL}\nWHERE meetups.id = ?",
@@ -183,6 +203,29 @@ class MeetupRepository:
         )
         row = cursor.fetchone()
         return row["organized_count"], row["joined_count"]
+
+    def has_user_joined_meetup(self, meetup_id, user_id):
+        cursor = get_db().execute(
+            """
+            SELECT 1
+            FROM join_events
+            WHERE meetup_id = ? AND user_id = ?
+            """,
+            (meetup_id, user_id),
+        )
+        return cursor.fetchone() is not None
+
+    def create_join_event(self, meetup_id, user_id, comment):
+        db = get_db()
+        cursor = db.execute(
+            """
+            INSERT INTO join_events (meetup_id, user_id, comment)
+            VALUES (?, ?, ?)
+            """,
+            (meetup_id, user_id, comment),
+        )
+        db.commit()
+        return cursor.lastrowid
 
     def _list_meetups(self, query, params):
         cursor = get_db().execute(query, params)

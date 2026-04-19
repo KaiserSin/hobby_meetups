@@ -68,6 +68,9 @@ class MeetupService:
     def list_meetups_by_user(self, user_id):
         return self.meetup_repository.list_meetups_by_user(user_id)
 
+    def list_join_events_for_meetup(self, meetup_id):
+        return self.meetup_repository.list_join_events_for_meetup(meetup_id)
+
     def get_meetup(self, meetup_id):
         meetup = self.meetup_repository.get_meetup_by_id(meetup_id)
         if meetup is None:
@@ -77,8 +80,16 @@ class MeetupService:
     def get_user_profile_stats(self, user_id):
         return self.meetup_repository.get_user_profile_stats(user_id)
 
+    def has_user_joined_meetup(self, meetup_id, user_id):
+        return self.meetup_repository.has_user_joined_meetup(meetup_id, user_id)
+
     def get_categories(self):
         return self.meetup_repository.list_categories()
+
+    def join_meetup(self, meetup_id, user_id, comment):
+        clean_comment = comment.strip()
+        stored_comment = clean_comment or None
+        return self.meetup_repository.create_join_event(meetup_id, user_id, stored_comment)
 
     def create_meetup(self, user_id, form_data):
         category_id, title, description, event_time, location = self._validate_meetup_data(form_data)

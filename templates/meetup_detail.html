@@ -32,9 +32,45 @@
 
 <section>
     <h2>Join this meetup</h2>
-    <p>RSVP and organizer comments are still a placeholder feature.</p>
+    {% if current_user_id is none %}
+    <p><a href="{{ url_for('app.login') }}">Log in</a> to join this meetup and leave a short comment.</p>
+    {% elif is_owner %}
+    <p>You are organizing this meetup.</p>
+    {% elif show_joined_note %}
+    <p>You have already joined this meetup.</p>
+    {% elif can_join %}
     <form method="post" action="{{ url_for('app.join_meetup', meetup_id=meetup.id) }}">
-        <button type="submit">RSVP / Join</button>
+        <p>
+            <label for="comment">Comment for the organizer</label>
+        </p>
+        <p>
+            <input
+                id="comment"
+                name="comment"
+                type="text"
+                placeholder="I'll bring Monopoly!"
+            >
+        </p>
+        <p>
+            <button type="submit">Join meetup</button>
+        </p>
     </form>
+    {% endif %}
+</section>
+
+<section>
+    <h2>Participants</h2>
+    {% if join_events %}
+    <ul>
+        {% for join_event in join_events %}
+        <li>
+            <a href="{{ url_for('app.user_profile', username=join_event.username) }}">{{ join_event.username }}</a>
+            {% if join_event.comment %}: {{ join_event.comment }}{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No one has joined yet.</p>
+    {% endif %}
 </section>
 {% endblock %}
