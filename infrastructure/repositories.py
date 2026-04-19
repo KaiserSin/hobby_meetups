@@ -177,6 +177,13 @@ class MeetupRepository:
 
     def delete_meetup(self, meetup_id, user_id):
         db = get_db()
+        db.execute(
+            """
+            DELETE FROM join_events
+            WHERE meetup_id = ?
+            """,
+            (meetup_id,),
+        )
         cursor = db.execute(
             """
             DELETE FROM meetups

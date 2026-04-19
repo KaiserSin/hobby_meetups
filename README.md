@@ -1,14 +1,15 @@
 # Hobby Meetups
 
-Hobby Meetups is a web application where users can find and organize local activities. Whether you want to play board games or study together, you can create an event announcement and let others join your activity.
+Hobby Meetups is a simple web application for finding and organizing local activities. Whether you want to play board games, study together, or start a small hobby group, you can create a meetup, browse events by category, join other people's plans, and check user profiles.
 
 ## Features
 
-* **User Authentication:** Users can create an account and log in securely.
-* **Manage Meetups:** Logged in users can create new meetup announcements, edit their details, and delete them.
-* **View and Search:** Anyone can view the list of available meetups and search for specific events using keywords.
-* **Categories:** Meetups can be categorized for easier filtering.
+* **User Authentication:** Users can create an account, log in securely, and log out when they are done.
+* **Manage Meetups:** Logged in users can create meetup announcements, edit them, and delete their own events.
+* **View and Search:** Anyone can browse the list of meetups and search for events using keywords.
+* **Categories:** Each meetup belongs to a category, which makes the list clearer and easier to browse.
 * **Join Meetups:** Logged in users can join a meetup and leave a short comment for the organizer.
+* **User Profiles:** Every user has a public profile page with basic stats and a list of the meetups they have created.
 
 ## How to Test Locally
 

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS meetups (
 
 CREATE TABLE IF NOT EXISTS join_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    meetup_id INTEGER REFERENCES meetups(id),
+    meetup_id INTEGER REFERENCES meetups(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users(id),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
