@@ -1,26 +1,51 @@
+from functools import wraps
+
 from flask import Blueprint, abort, redirect, render_template, request, session, url_for
 
-from application.meetup_service import (
+from application.services import (
+    AuthenticationError,
     MeetupNotFoundError,
     MeetupPermissionError,
     MeetupService,
     MeetupValidationError,
-)
-from application.user_service import (
-    AuthenticationError,
     UserService,
     UserValidationError,
 )
 from infrastructure.repositories import MeetupRepository, UserRepository
 
 
-auth_blueprint = Blueprint("auth", __name__)
-meetups_blueprint = Blueprint("meetups", __name__)
+app_blueprint = Blueprint("app", __name__)
 user_service = UserService(UserRepository())
 meetup_service = MeetupService(MeetupRepository())
 
 
-@auth_blueprint.route("/register", methods=["GET", "POST"])
+@app_blueprint.app_context_processor
+def inject_user_state():
+    return {"current_user_id": _current_user_id()}
+
+
+def _current_user_id():
+    return session.get("user_id")
+
+
+def _get_meetup_or_404(meetup_id):
+    try:
+        return meetup_service.get_meetup(meetup_id)
+    except MeetupNotFoundError:
+        abort(404)
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if _current_user_id() is None:
+            return redirect(url_for("app.login"))
+        return view(*args, **kwargs)
+
+    return wrapped_view
+
+
+@app_blueprint.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username", "")
@@ -28,14 +53,14 @@ def register():
 
         try:
             user_service.register_user(username, password)
-            return redirect(url_for("meetups.index", status="registered"))
+            return redirect(url_for("app.login", registered="1"))
         except UserValidationError as error:
             return render_template("register.html", error_message=str(error))
 
-    return render_template("register.html", error_message=None)
+    return render_template("register.html")
 
 
-@auth_blueprint.route("/login", methods=["GET", "POST"])
+@app_blueprint.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form.get("username", "")
@@ -44,19 +69,9 @@ def login():
         try:
             user = user_service.authenticate_user(username, password)
             session["user_id"] = user.id
-            return redirect(url_for("meetups.index", status="logged_in"))
-        except UserValidationError as error:
-            return render_template(
-                "login.html",
-                error_message=str(error),
-                status_message=None,
-            )
-        except AuthenticationError as error:
-            return render_template(
-                "login.html",
-                error_message=str(error),
-                status_message=None,
-            )
+            return redirect(url_for("app.index", status="logged_in"))
+        except (UserValidationError, AuthenticationError) as error:
+            return render_template("login.html", error_message=str(error))
 
     status_message = None
 
@@ -64,32 +79,28 @@ def login():
         status_message = "Registration successful. Please log in."
     elif request.args.get("logged_out") == "1":
         status_message = "You have been logged out."
-    elif "user_id" in session:
+    elif _current_user_id() is not None:
         status_message = "You are already logged in."
 
-    return render_template(
-        "login.html",
-        error_message=None,
-        status_message=status_message,
-    )
+    return render_template("login.html", status_message=status_message)
 
 
-@auth_blueprint.route("/logout")
+@app_blueprint.route("/logout", methods=["POST"])
 def logout():
     session.pop("user_id", None)
-    return redirect(url_for("auth.login", logged_out="1"))
+    return redirect(url_for("app.index", status="logged_out"))
 
 
-@meetups_blueprint.route("/")
+@app_blueprint.route("/")
 def index():
     search_query = request.args.get("search_query", "").strip()
     status = request.args.get("status")
     status_message = None
 
-    if status == "registered":
-        status_message = "Registration successful."
-    elif status == "logged_in":
+    if status == "logged_in":
         status_message = "Login successful."
+    elif status == "logged_out":
+        status_message = "You have been logged out."
 
     meetups = meetup_service.list_meetups(search_query)
     return render_template(
@@ -100,15 +111,10 @@ def index():
     )
 
 
-@meetups_blueprint.route("/meetups/<int:meetup_id>")
+@app_blueprint.route("/meetups/<int:meetup_id>")
 def meetup_detail(meetup_id):
-    try:
-        meetup = meetup_service.get_meetup(meetup_id)
-    except MeetupNotFoundError:
-        abort(404)
-
-    current_user_id = session.get("user_id")
-    is_owner = current_user_id == meetup.user_id
+    meetup = _get_meetup_or_404(meetup_id)
+    is_owner = _current_user_id() == meetup.user_id
 
     status_message = None
     if request.args.get("status") == "join_unavailable":
@@ -126,12 +132,9 @@ def meetup_detail(meetup_id):
     )
 
 
-@meetups_blueprint.route("/meetups/create", methods=["GET", "POST"])
+@app_blueprint.route("/meetups/create", methods=["GET", "POST"])
+@login_required
 def create_meetup():
-    user_id = session.get("user_id")
-    if user_id is None:
-        return redirect(url_for("auth.login"))
-
     categories = meetup_service.get_categories()
     if not categories:
         return render_template(
@@ -142,8 +145,8 @@ def create_meetup():
 
     if request.method == "POST":
         try:
-            meetup_id = meetup_service.create_meetup(user_id, request.form)
-            return redirect(url_for("meetups.meetup_detail", meetup_id=meetup_id))
+            meetup_id = meetup_service.create_meetup(_current_user_id(), request.form)
+            return redirect(url_for("app.meetup_detail", meetup_id=meetup_id))
         except MeetupValidationError as error:
             return render_template(
                 "create_meetup.html",
@@ -154,22 +157,14 @@ def create_meetup():
     return render_template(
         "create_meetup.html",
         categories=categories,
-        error_message=None,
     )
 
 
-@meetups_blueprint.route("/meetups/<int:meetup_id>/edit", methods=["GET", "POST"])
+@app_blueprint.route("/meetups/<int:meetup_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_meetup(meetup_id):
-    user_id = session.get("user_id")
-    if user_id is None:
-        return redirect(url_for("auth.login"))
-
-    try:
-        meetup = meetup_service.get_meetup(meetup_id)
-    except MeetupNotFoundError:
-        abort(404)
-
-    if meetup.user_id != user_id:
+    meetup = _get_meetup_or_404(meetup_id)
+    if meetup.user_id != _current_user_id():
         abort(403)
 
     categories = meetup_service.get_categories()
@@ -183,8 +178,8 @@ def edit_meetup(meetup_id):
 
     if request.method == "POST":
         try:
-            meetup_service.update_meetup(meetup_id, user_id, request.form)
-            return redirect(url_for("meetups.meetup_detail", meetup_id=meetup_id))
+            meetup_service.update_meetup(meetup_id, _current_user_id(), request.form)
+            return redirect(url_for("app.meetup_detail", meetup_id=meetup_id))
         except MeetupValidationError as error:
             return render_template(
                 "edit_meetup.html",
@@ -201,36 +196,29 @@ def edit_meetup(meetup_id):
         "edit_meetup.html",
         meetup=meetup,
         categories=categories,
-        error_message=None,
     )
 
 
-@meetups_blueprint.route("/meetups/<int:meetup_id>/delete", methods=["POST"])
+@app_blueprint.route("/meetups/<int:meetup_id>/delete", methods=["POST"])
+@login_required
 def delete_meetup(meetup_id):
-    user_id = session.get("user_id")
-    if user_id is None:
-        return redirect(url_for("auth.login"))
-
     try:
-        meetup_service.delete_meetup(meetup_id, user_id)
+        meetup_service.delete_meetup(meetup_id, _current_user_id())
     except MeetupPermissionError:
         abort(403)
     except MeetupNotFoundError:
         abort(404)
 
-    return redirect(url_for("meetups.index"))
+    return redirect(url_for("app.index"))
 
 
-@meetups_blueprint.route("/meetups/<int:meetup_id>/join", methods=["POST"])
+@app_blueprint.route("/meetups/<int:meetup_id>/join", methods=["POST"])
 def join_meetup(meetup_id):
-    try:
-        meetup_service.get_meetup(meetup_id)
-    except MeetupNotFoundError:
-        abort(404)
+    _get_meetup_or_404(meetup_id)
 
     return redirect(
         url_for(
-            "meetups.meetup_detail",
+            "app.meetup_detail",
             meetup_id=meetup_id,
             status="join_unavailable",
         )

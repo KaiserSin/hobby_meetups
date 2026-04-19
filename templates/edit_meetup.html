@@ -1,77 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Meetup</title>
-</head>
-<body>
-    <header>
-        <h1>Edit Meetup</h1>
-    </header>
+{% extends "base.html" %}
 
-    <main>
-        {% if error_message %}
-        <p>{{ error_message }}</p>
-        {% endif %}
+{% block title %}Edit Meetup{% endblock %}
 
-        <form method="post" action="{{ url_for('meetups.edit_meetup', meetup_id=meetup.id) }}">
-            <p>
-                <label for="title">Title</label>
-            </p>
-            <p>
-                <input id="title" name="title" type="text" value="{{ meetup.title }}" required>
-            </p>
+{% block content %}
+<section>
+    <p><a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a></p>
+</section>
 
-            <p>
-                <label for="description">Description</label>
-            </p>
-            <p>
-                <textarea id="description" name="description" rows="5" cols="40" required>{{ meetup.description }}</textarea>
-            </p>
+<section>
+    <h1>Edit meetup</h1>
+    <form method="post" action="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">
+        <p>
+            <label for="title">Title</label>
+        </p>
+        <p>
+            <input id="title" name="title" type="text" value="{{ meetup.title }}" required>
+        </p>
 
-            <p>
-                <label for="event_time">Date and time</label>
-            </p>
-            <p>
-                <input
-                    id="event_time"
-                    name="event_time"
-                    type="datetime-local"
-                    value="{{ meetup.event_time|string|replace(' ', 'T') }}"
-                    required
-                >
-            </p>
+        <p>
+            <label for="description">Description</label>
+        </p>
+        <p>
+            <textarea id="description" name="description" required>{{ meetup.description }}</textarea>
+        </p>
 
-            <p>
-                <label for="location">Location</label>
-            </p>
-            <p>
-                <input id="location" name="location" type="text" value="{{ meetup.location }}" required>
-            </p>
+        <p>
+            <label for="event_time">Date and time</label>
+        </p>
+        <p>
+            <input
+                id="event_time"
+                name="event_time"
+                type="datetime-local"
+                value="{{ meetup.event_time|string|replace(' ', 'T') }}"
+                required
+            >
+        </p>
 
-            <p>
-                <label for="category_id">Category</label>
-            </p>
-            <p>
-                <select id="category_id" name="category_id" required>
-                    <option value="">Select a category</option>
-                    {% for category in categories %}
-                    <option value="{{ category.id }}" {% if category.id == meetup.category_id %}selected{% endif %}>
-                        {{ category.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </p>
+        <p>
+            <label for="location">Location</label>
+        </p>
+        <p>
+            <input id="location" name="location" type="text" value="{{ meetup.location }}" required>
+        </p>
 
-            <p>
-                <button type="submit">Save changes</button>
-            </p>
-        </form>
-    </main>
+        <p>
+            <label for="category_id">Category</label>
+        </p>
+        <p>
+            <select id="category_id" name="category_id" required>
+                <option value="">Select a category</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id == meetup.category_id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </p>
 
-    <nav>
-        <p><a href="{{ url_for('meetups.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a></p>
-    </nav>
-</body>
-</html>
+        <p>
+            <button type="submit">Save changes</button>
+        </p>
+    </form>
+</section>
+{% endblock %}

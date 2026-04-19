@@ -2,6 +2,28 @@ from domain.entities import Category, Meetup, User
 from infrastructure.database import get_db
 
 
+USER_SELECT_SQL = """
+    SELECT id, username, password_hash
+    FROM users
+"""
+
+MEETUP_SELECT_SQL = """
+    SELECT
+        meetups.id,
+        meetups.user_id,
+        meetups.category_id,
+        meetups.title,
+        meetups.description,
+        meetups.event_time,
+        meetups.location,
+        categories.name AS category_name,
+        users.username
+    FROM meetups
+    LEFT JOIN categories ON categories.id = meetups.category_id
+    LEFT JOIN users ON users.id = meetups.user_id
+"""
+
+
 class UserRepository:
     def save_user(self, username, password_hash):
         db = get_db()
@@ -16,30 +38,13 @@ class UserRepository:
         return cursor.lastrowid
 
     def find_by_username(self, username):
-        db = get_db()
-        cursor = db.execute(
-            """
-            SELECT id, username, password_hash
-            FROM users
-            WHERE username = ?
-            """,
-            (username,),
-        )
-        row = cursor.fetchone()
-        if row is None:
-            return None
-        return self._map_user(row)
+        return self._get_user("WHERE username = ?", (username,))
 
     def get_user_by_id(self, user_id):
-        db = get_db()
-        cursor = db.execute(
-            """
-            SELECT id, username, password_hash
-            FROM users
-            WHERE id = ?
-            """,
-            (user_id,),
-        )
+        return self._get_user("WHERE id = ?", (user_id,))
+
+    def _get_user(self, where_clause, params):
+        cursor = get_db().execute(f"{USER_SELECT_SQL}\n{where_clause}", params)
         row = cursor.fetchone()
         if row is None:
             return None
@@ -55,66 +60,25 @@ class UserRepository:
 
 class MeetupRepository:
     def list_meetups(self, search_query=None):
-        db = get_db()
-        base_query = """
-            SELECT
-                meetups.id,
-                meetups.user_id,
-                meetups.category_id,
-                meetups.title,
-                meetups.description,
-                meetups.event_time,
-                meetups.location,
-                categories.name AS category_name,
-                users.username
-            FROM meetups
-            LEFT JOIN categories ON categories.id = meetups.category_id
-            LEFT JOIN users ON users.id = meetups.user_id
-        """
-
+        query = MEETUP_SELECT_SQL
+        params = ()
         clean_search_query = (search_query or "").strip()
         if clean_search_query:
             like_query = f"%{clean_search_query}%"
-            cursor = db.execute(
-                base_query
-                + """
+            query += """
                 WHERE
                     meetups.title LIKE ?
                     OR meetups.description LIKE ?
                     OR meetups.location LIKE ?
-                ORDER BY meetups.event_time
-                """,
-                (like_query, like_query, like_query),
-            )
-            return [self._map_meetup(row) for row in cursor.fetchall()]
-
-        cursor = db.execute(
-            base_query
-            + """
-            ORDER BY meetups.event_time
             """
-        )
-        return [self._map_meetup(row) for row in cursor.fetchall()]
+            params = (like_query, like_query, like_query)
+
+        query += "\nORDER BY meetups.event_time"
+        return self._list_meetups(query, params)
 
     def get_meetup_by_id(self, meetup_id):
-        db = get_db()
-        cursor = db.execute(
-            """
-            SELECT
-                meetups.id,
-                meetups.user_id,
-                meetups.category_id,
-                meetups.title,
-                meetups.description,
-                meetups.event_time,
-                meetups.location,
-                categories.name AS category_name,
-                users.username
-            FROM meetups
-            LEFT JOIN categories ON categories.id = meetups.category_id
-            LEFT JOIN users ON users.id = meetups.user_id
-            WHERE meetups.id = ?
-            """,
+        cursor = get_db().execute(
+            f"{MEETUP_SELECT_SQL}\nWHERE meetups.id = ?",
             (meetup_id,),
         )
         row = cursor.fetchone()
@@ -198,6 +162,10 @@ class MeetupRepository:
         )
         db.commit()
         return cursor.rowcount
+
+    def _list_meetups(self, query, params):
+        cursor = get_db().execute(query, params)
+        return [self._map_meetup(row) for row in cursor.fetchall()]
 
     def _map_category(self, row):
         return Category(

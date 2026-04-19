@@ -1,43 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-</head>
-<body>
-    <header>
-        <h1>Register</h1>
-    </header>
+{% extends "base.html" %}
 
-    <main>
-        {% if error_message %}
-        <p>{{ error_message }}</p>
-        {% endif %}
+{% block title %}Register{% endblock %}
 
-        <form method="post" action="{{ url_for('auth.register') }}">
-            <p>
-                <label for="username">Username</label>
-            </p>
-            <p>
-                <input id="username" name="username" type="text" required>
-            </p>
+{% block content %}
+<section>
+    <h1>Create an account</h1>
+    <form method="post" action="{{ url_for('app.register') }}">
+        <p>
+            <label for="username">Username</label>
+        </p>
+        <p>
+            <input id="username" name="username" type="text" required>
+        </p>
 
-            <p>
-                <label for="password">Password</label>
-            </p>
-            <p>
-                <input id="password" name="password" type="password" required>
-            </p>
+        <p>
+            <label for="password">Password</label>
+        </p>
+        <p>
+            <input id="password" name="password" type="password" required>
+        </p>
 
-            <p>
-                <button type="submit">Register</button>
-            </p>
-        </form>
-    </main>
-
-    <nav>
-        <p><a href="{{ url_for('auth.login') }}">Go to login</a></p>
-    </nav>
-</body>
-</html>
+        <p>
+            <button type="submit">Register</button>
+            <a href="{{ url_for('app.login') }}">Go to login</a>
+        </p>
+    </form>
+</section>
+{% endblock %}

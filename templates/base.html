@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hobby Meetups{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <div>
+            <div>
+                <h1><a href="{{ url_for('app.index') }}">Hobby Meetups</a></h1>
+                <p>Find local activities and organize new meetups.</p>
+            </div>
+
+            <nav aria-label="Primary">
+                <a href="{{ url_for('app.index') }}">All meetups</a>
+                {% if current_user_id %}
+                <a href="{{ url_for('app.create_meetup') }}">Create meetup</a>
+                <form method="post" action="{{ url_for('app.logout') }}">
+                    <button type="submit">Logout</button>
+                </form>
+                {% else %}
+                <a href="{{ url_for('app.login') }}">Login</a>
+                <a href="{{ url_for('app.register') }}">Register</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        {% if status_message %}
+        <p>{{ status_message }}</p>
+        {% endif %}
+
+        {% if error_message %}
+        <p>{{ error_message }}</p>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

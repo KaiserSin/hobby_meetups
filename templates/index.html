@@ -1,61 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hobby Meetups</title>
-</head>
-<body>
-    <header>
-        <h1>Hobby Meetups</h1>
-    </header>
+{% extends "base.html" %}
 
-    <main>
-        {% if status_message %}
-        <p>{{ status_message }}</p>
-        {% endif %}
+{% block title %}Hobby Meetups{% endblock %}
 
-        <section>
-            <h2>Search Meetups</h2>
-            <form method="get" action="{{ url_for('meetups.index') }}">
-                <p>
-                    <label for="search_query">Search</label>
-                </p>
-                <p>
-                    <input
-                        id="search_query"
-                        name="search_query"
-                        type="text"
-                        value="{{ search_query or '' }}"
-                    >
-                </p>
-                <p>
-                    <button type="submit">Search</button>
-                </p>
-            </form>
-        </section>
+{% block content %}
+<section>
+    <h1>Browse meetups</h1>
+    <p>Search upcoming hobby events or create your own when you are logged in.</p>
 
-        <nav>
-            <p><a href="{{ url_for('meetups.create_meetup') }}">Create meetup</a></p>
-        </nav>
+    <form method="get" action="{{ url_for('app.index') }}">
+        <p>
+            <label for="search_query">Search meetups</label>
+        </p>
+        <p>
+            <input
+                id="search_query"
+                name="search_query"
+                type="text"
+                value="{{ search_query or '' }}"
+                placeholder="Board games, study group, Helsinki..."
+            >
+        </p>
 
-        <section>
-            <h2>All Meetups</h2>
-
-            {% if meetups %}
-            {% for meetup in meetups %}
-            <article>
-                <h3>{{ meetup.title }}</h3>
-                <p>Category: {{ meetup.category_name or 'Uncategorized' }}</p>
-                <p>Event time: {{ meetup.event_time }}</p>
-                <p>Location: {{ meetup.location }}</p>
-                <p><a href="{{ url_for('meetups.meetup_detail', meetup_id=meetup.id) }}">View details</a></p>
-            </article>
-            {% endfor %}
-            {% else %}
-            <p>No meetups found.</p>
+        <p>
+            <button type="submit">Search</button>
+            {% if search_query %}
+            <a href="{{ url_for('app.index') }}">Clear search</a>
             {% endif %}
-        </section>
-    </main>
-</body>
-</html>
+        </p>
+    </form>
+</section>
+
+<section>
+    <h2>All meetups</h2>
+
+    {% if meetups %}
+    {% for meetup in meetups %}
+    <article>
+        <h3>{{ meetup.title }}</h3>
+        <p>Category: {{ meetup.category_name or 'Uncategorized' }}</p>
+        <p><strong>Event time:</strong> {{ meetup.event_time }}</p>
+        <p><strong>Location:</strong> {{ meetup.location }}</p>
+        <p><a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">View details</a></p>
+    </article>
+    {% endfor %}
+    {% else %}
+    <p>No meetups found.</p>
+    {% endif %}
+</section>
+{% endblock %}
