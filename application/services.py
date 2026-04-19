@@ -135,10 +135,6 @@ class MeetupService:
         event_time = form_data.get("event_time", "").strip()
         location = form_data.get("location", "").strip()
         raw_category_ids = [value.strip() for value in form_data.getlist("category_ids") if value.strip()]
-        if not raw_category_ids:
-            legacy_category_id = form_data.get("category_id", "").strip()
-            if legacy_category_id:
-                raw_category_ids = [legacy_category_id]
 
         if not title or not description or not event_time or not location:
             raise MeetupValidationError("All meetup fields are required.")

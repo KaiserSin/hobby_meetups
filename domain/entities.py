@@ -18,7 +18,6 @@ class Category:
 class Meetup:
     id: int
     user_id: int
-    category_id: int
     title: str
     description: str
     event_time: str

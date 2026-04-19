@@ -43,7 +43,6 @@ def _ensure_csrf_token():
 
 def _rotate_csrf_token():
     session["csrf_token"] = generate_csrf_token()
-    return session["csrf_token"]
 
 
 def _validate_csrf_or_403():

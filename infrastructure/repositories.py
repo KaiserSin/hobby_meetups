@@ -188,13 +188,6 @@ class MeetupRepository:
         db = get_db()
         db.execute(
             """
-            DELETE FROM meetup_categories
-            WHERE meetup_id = ?
-            """,
-            (meetup_id,),
-        )
-        db.execute(
-            """
             DELETE FROM join_events
             WHERE meetup_id = ?
             """,
@@ -281,7 +274,6 @@ class MeetupRepository:
         return Meetup(
             id=row["id"],
             user_id=row["user_id"],
-            category_id=category_ids[0] if category_ids else None,
             title=row["title"],
             description=row["description"],
             event_time=row["event_time"],
