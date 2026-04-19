@@ -25,3 +25,4 @@ class Meetup:
     location: str
     category_name: str = None
     username: str = None
+    category_ids: tuple = ()

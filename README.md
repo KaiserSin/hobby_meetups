@@ -7,7 +7,7 @@ Hobby Meetups is a simple web application for finding and organizing local activ
 * **User Authentication:** Users can create an account, log in securely, and log out when they are done.
 * **Manage Meetups:** Logged in users can create meetup announcements, edit them, and delete their own events.
 * **View and Search:** Anyone can browse the list of meetups and search for events using keywords.
-* **Categories:** Each meetup belongs to a category, which makes the list clearer and easier to browse.
+* **Categories:** Each meetup can belong to one or more categories, which makes the list clearer and easier to browse.
 * **Join Meetups:** Logged in users can join a meetup and leave a short comment for the organizer.
 * **User Profiles:** Every user has a public profile page with basic stats and a list of the meetups they have created.
 

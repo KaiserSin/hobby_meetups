@@ -26,3 +26,9 @@ CREATE TABLE IF NOT EXISTS join_events (
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS meetup_categories (
+    meetup_id INTEGER NOT NULL REFERENCES meetups(id) ON DELETE CASCADE,
+    category_id INTEGER NOT NULL REFERENCES categories(id),
+    PRIMARY KEY (meetup_id, category_id)
+);

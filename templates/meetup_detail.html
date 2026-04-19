@@ -23,7 +23,7 @@
 <section>
     <h1>{{ meetup.title }}</h1>
     <p>{{ meetup.description }}</p>
-    <p>Category: {{ meetup.category_name or 'Uncategorized' }}</p>
+    <p>Categories: {{ meetup.category_name or 'Uncategorized' }}</p>
     <p><strong>Event time:</strong> {{ meetup.event_time }}</p>
     <p><strong>Location:</strong> {{ meetup.location }}</p>
     {% if meetup.username %}

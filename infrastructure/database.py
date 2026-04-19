@@ -28,6 +28,7 @@ def init_db():
     schema_sql = _read_sql_file("schema.sql")
     seed_categories_sql = _read_sql_file("seed_categories.sql")
     db.executescript(schema_sql)
+    _migrate_meetup_categories(db)
     db.executescript(seed_categories_sql)
     db.commit()
 
@@ -39,3 +40,23 @@ def init_app(app):
 def _read_sql_file(filename):
     sql_file_path = INFRASTRUCTURE_DIR / filename
     return sql_file_path.read_text(encoding="utf-8")
+
+
+def _migrate_meetup_categories(db):
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS meetup_categories (
+            meetup_id INTEGER NOT NULL REFERENCES meetups(id) ON DELETE CASCADE,
+            category_id INTEGER NOT NULL REFERENCES categories(id),
+            PRIMARY KEY (meetup_id, category_id)
+        )
+        """
+    )
+    db.execute(
+        """
+        INSERT OR IGNORE INTO meetup_categories (meetup_id, category_id)
+        SELECT id, category_id
+        FROM meetups
+        WHERE category_id IS NOT NULL
+        """
+    )

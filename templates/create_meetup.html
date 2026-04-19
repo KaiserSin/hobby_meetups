@@ -39,17 +39,17 @@
             <input id="location" name="location" type="text" required>
         </p>
 
-        <p>
-            <label for="category_id">Category</label>
-        </p>
-        <p>
-            <select id="category_id" name="category_id" required>
-                <option value="">Select a category</option>
-                {% for category in categories %}
-                <option value="{{ category.id }}">{{ category.name }}</option>
-                {% endfor %}
-            </select>
-        </p>
+        <fieldset>
+            <legend>Categories</legend>
+            {% for category in categories %}
+            <p>
+                <label>
+                    <input type="checkbox" name="category_ids" value="{{ category.id }}">
+                    {{ category.name }}
+                </label>
+            </p>
+            {% endfor %}
+        </fieldset>
 
         <p>
             <button type="submit">Create meetup</button>

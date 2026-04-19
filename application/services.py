@@ -92,10 +92,10 @@ class MeetupService:
         return self.meetup_repository.create_join_event(meetup_id, user_id, stored_comment)
 
     def create_meetup(self, user_id, form_data):
-        category_id, title, description, event_time, location = self._validate_meetup_data(form_data)
+        category_ids, title, description, event_time, location = self._validate_meetup_data(form_data)
         return self.meetup_repository.create_meetup(
             user_id,
-            category_id,
+            category_ids,
             title,
             description,
             event_time,
@@ -107,11 +107,11 @@ class MeetupService:
         if meetup.user_id != user_id:
             raise MeetupPermissionError("You can edit only your own meetups.")
 
-        category_id, title, description, event_time, location = self._validate_meetup_data(form_data)
+        category_ids, title, description, event_time, location = self._validate_meetup_data(form_data)
         updated_rows = self.meetup_repository.update_meetup(
             meetup_id,
             user_id,
-            category_id,
+            category_ids,
             title,
             description,
             event_time,
@@ -134,7 +134,11 @@ class MeetupService:
         description = form_data.get("description", "").strip()
         event_time = form_data.get("event_time", "").strip()
         location = form_data.get("location", "").strip()
-        raw_category_id = form_data.get("category_id", "").strip()
+        raw_category_ids = [value.strip() for value in form_data.getlist("category_ids") if value.strip()]
+        if not raw_category_ids:
+            legacy_category_id = form_data.get("category_id", "").strip()
+            if legacy_category_id:
+                raw_category_ids = [legacy_category_id]
 
         if not title or not description or not event_time or not location:
             raise MeetupValidationError("All meetup fields are required.")
@@ -145,17 +149,22 @@ class MeetupService:
                 "No categories are available. Add a category before creating or editing a meetup."
             )
 
-        if not raw_category_id:
-            raise MeetupValidationError("Category is required.")
-
-        try:
-            category_id = int(raw_category_id)
-        except ValueError as error:
-            raise MeetupValidationError("Category is invalid.") from error
+        if not raw_category_ids:
+            raise MeetupValidationError("At least one category is required.")
 
         valid_category_ids = {category.id for category in categories}
-        if category_id not in valid_category_ids:
-            raise MeetupValidationError("Category is invalid.")
+        category_ids = []
+        for raw_category_id in raw_category_ids:
+            try:
+                category_id = int(raw_category_id)
+            except ValueError as error:
+                raise MeetupValidationError("A category is invalid.") from error
+
+            if category_id not in valid_category_ids:
+                raise MeetupValidationError("A category is invalid.")
+
+            if category_id not in category_ids:
+                category_ids.append(category_id)
 
         try:
             parsed_event_time = datetime.fromisoformat(event_time)
@@ -163,4 +172,4 @@ class MeetupService:
             raise MeetupValidationError("Date and time are invalid.") from error
 
         formatted_event_time = parsed_event_time.strftime("%Y-%m-%d %H:%M:%S")
-        return category_id, title, description, formatted_event_time, location
+        return category_ids, title, description, formatted_event_time, location

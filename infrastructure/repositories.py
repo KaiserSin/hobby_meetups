@@ -11,17 +11,20 @@ MEETUP_SELECT_SQL = """
     SELECT
         meetups.id,
         meetups.user_id,
-        meetups.category_id,
         meetups.title,
         meetups.description,
         meetups.event_time,
         meetups.location,
-        categories.name AS category_name,
+        GROUP_CONCAT(categories.id) AS category_ids,
+        GROUP_CONCAT(categories.name, ', ') AS category_name,
         users.username
     FROM meetups
-    LEFT JOIN categories ON categories.id = meetups.category_id
     LEFT JOIN users ON users.id = meetups.user_id
+    LEFT JOIN meetup_categories ON meetup_categories.meetup_id = meetups.id
+    LEFT JOIN categories ON categories.id = meetup_categories.category_id
 """
+
+MEETUP_GROUP_BY_SQL = "\nGROUP BY meetups.id"
 
 
 class UserRepository:
@@ -70,14 +73,15 @@ class MeetupRepository:
                     meetups.title LIKE ?
                     OR meetups.description LIKE ?
                     OR meetups.location LIKE ?
+                    OR categories.name LIKE ?
             """
-            params = (like_query, like_query, like_query)
+            params = (like_query, like_query, like_query, like_query)
 
-        query += "\nORDER BY meetups.event_time"
+        query += f"{MEETUP_GROUP_BY_SQL}\nORDER BY meetups.event_time"
         return self._list_meetups(query, params)
 
     def list_meetups_by_user(self, user_id):
-        query = f"{MEETUP_SELECT_SQL}\nWHERE meetups.user_id = ?\nORDER BY meetups.event_time"
+        query = f"{MEETUP_SELECT_SQL}\nWHERE meetups.user_id = ?{MEETUP_GROUP_BY_SQL}\nORDER BY meetups.event_time"
         return self._list_meetups(query, (user_id,))
 
     def list_join_events_for_meetup(self, meetup_id):
@@ -102,7 +106,7 @@ class MeetupRepository:
 
     def get_meetup_by_id(self, meetup_id):
         cursor = get_db().execute(
-            f"{MEETUP_SELECT_SQL}\nWHERE meetups.id = ?",
+            f"{MEETUP_SELECT_SQL}\nWHERE meetups.id = ?{MEETUP_GROUP_BY_SQL}",
             (meetup_id,),
         )
         row = cursor.fetchone()
@@ -121,8 +125,9 @@ class MeetupRepository:
         )
         return [self._map_category(row) for row in cursor.fetchall()]
 
-    def create_meetup(self, user_id, category_id, title, description, event_time, location):
+    def create_meetup(self, user_id, category_ids, title, description, event_time, location):
         db = get_db()
+        primary_category_id = category_ids[0]
         cursor = db.execute(
             """
             INSERT INTO meetups (
@@ -135,8 +140,9 @@ class MeetupRepository:
             )
             VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (user_id, category_id, title, description, event_time, location),
+            (user_id, primary_category_id, title, description, event_time, location),
         )
+        self._replace_meetup_categories(db, cursor.lastrowid, category_ids)
         db.commit()
         return cursor.lastrowid
 
@@ -144,13 +150,14 @@ class MeetupRepository:
         self,
         meetup_id,
         user_id,
-        category_id,
+        category_ids,
         title,
         description,
         event_time,
         location,
     ):
         db = get_db()
+        primary_category_id = category_ids[0]
         cursor = db.execute(
             """
             UPDATE meetups
@@ -163,7 +170,7 @@ class MeetupRepository:
             WHERE id = ? AND user_id = ?
             """,
             (
-                category_id,
+                primary_category_id,
                 title,
                 description,
                 event_time,
@@ -172,11 +179,20 @@ class MeetupRepository:
                 user_id,
             ),
         )
+        if cursor.rowcount > 0:
+            self._replace_meetup_categories(db, meetup_id, category_ids)
         db.commit()
         return cursor.rowcount
 
     def delete_meetup(self, meetup_id, user_id):
         db = get_db()
+        db.execute(
+            """
+            DELETE FROM meetup_categories
+            WHERE meetup_id = ?
+            """,
+            (meetup_id,),
+        )
         db.execute(
             """
             DELETE FROM join_events
@@ -238,6 +254,22 @@ class MeetupRepository:
         cursor = get_db().execute(query, params)
         return [self._map_meetup(row) for row in cursor.fetchall()]
 
+    def _replace_meetup_categories(self, db, meetup_id, category_ids):
+        db.execute(
+            """
+            DELETE FROM meetup_categories
+            WHERE meetup_id = ?
+            """,
+            (meetup_id,),
+        )
+        db.executemany(
+            """
+            INSERT INTO meetup_categories (meetup_id, category_id)
+            VALUES (?, ?)
+            """,
+            [(meetup_id, category_id) for category_id in category_ids],
+        )
+
     def _map_category(self, row):
         return Category(
             id=row["id"],
@@ -245,14 +277,21 @@ class MeetupRepository:
         )
 
     def _map_meetup(self, row):
+        category_ids = self._parse_category_ids(row["category_ids"])
         return Meetup(
             id=row["id"],
             user_id=row["user_id"],
-            category_id=row["category_id"],
+            category_id=category_ids[0] if category_ids else None,
             title=row["title"],
             description=row["description"],
             event_time=row["event_time"],
             location=row["location"],
             category_name=row["category_name"],
             username=row["username"],
+            category_ids=category_ids,
         )
+
+    def _parse_category_ids(self, raw_category_ids):
+        if not raw_category_ids:
+            return ()
+        return tuple(int(category_id) for category_id in raw_category_ids.split(",") if category_id)
