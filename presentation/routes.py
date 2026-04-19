@@ -111,6 +111,26 @@ def index():
     )
 
 
+@app_blueprint.route("/user/<username>")
+def user_profile(username):
+    profile_user = user_service.get_user_by_username(username)
+    if profile_user is None:
+        abort(404)
+
+    organized_count, joined_count = meetup_service.get_user_profile_stats(profile_user.id)
+    meetups = meetup_service.list_meetups_by_user(profile_user.id)
+    is_owner = _current_user_id() == profile_user.id
+
+    return render_template(
+        "profile.html",
+        profile_user=profile_user,
+        organized_count=organized_count,
+        joined_count=joined_count,
+        meetups=meetups,
+        is_owner=is_owner,
+    )
+
+
 @app_blueprint.route("/meetups/<int:meetup_id>")
 def meetup_detail(meetup_id):
     meetup = _get_meetup_or_404(meetup_id)
@@ -118,10 +138,7 @@ def meetup_detail(meetup_id):
 
     status_message = None
     if request.args.get("status") == "join_unavailable":
-        status_message = (
-            "Joining meetups, comments for organizers, and user profile pages "
-            "are not implemented yet."
-        )
+        status_message = "Joining meetups and comments for organizers are not implemented yet."
 
     return render_template(
         "meetup_detail.html",

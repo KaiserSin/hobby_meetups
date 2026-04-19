@@ -54,6 +54,9 @@ class UserService:
 
         return user
 
+    def get_user_by_username(self, username):
+        return self.user_repository.find_by_username(username.strip())
+
 
 class MeetupService:
     def __init__(self, meetup_repository):
@@ -62,11 +65,17 @@ class MeetupService:
     def list_meetups(self, search_query):
         return self.meetup_repository.list_meetups(search_query)
 
+    def list_meetups_by_user(self, user_id):
+        return self.meetup_repository.list_meetups_by_user(user_id)
+
     def get_meetup(self, meetup_id):
         meetup = self.meetup_repository.get_meetup_by_id(meetup_id)
         if meetup is None:
             raise MeetupNotFoundError("Meetup not found.")
         return meetup
+
+    def get_user_profile_stats(self, user_id):
+        return self.meetup_repository.get_user_profile_stats(user_id)
 
     def get_categories(self):
         return self.meetup_repository.list_categories()

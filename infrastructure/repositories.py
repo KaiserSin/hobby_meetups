@@ -76,6 +76,10 @@ class MeetupRepository:
         query += "\nORDER BY meetups.event_time"
         return self._list_meetups(query, params)
 
+    def list_meetups_by_user(self, user_id):
+        query = f"{MEETUP_SELECT_SQL}\nWHERE meetups.user_id = ?\nORDER BY meetups.event_time"
+        return self._list_meetups(query, (user_id,))
+
     def get_meetup_by_id(self, meetup_id):
         cursor = get_db().execute(
             f"{MEETUP_SELECT_SQL}\nWHERE meetups.id = ?",
@@ -162,6 +166,23 @@ class MeetupRepository:
         )
         db.commit()
         return cursor.rowcount
+
+    def get_user_profile_stats(self, user_id):
+        cursor = get_db().execute(
+            """
+            SELECT
+                (SELECT COUNT(*) FROM meetups WHERE user_id = ?) AS organized_count,
+                (
+                    SELECT COUNT(DISTINCT join_events.meetup_id)
+                    FROM join_events
+                    JOIN meetups ON meetups.id = join_events.meetup_id
+                    WHERE join_events.user_id = ? AND meetups.user_id != ?
+                ) AS joined_count
+            """,
+            (user_id, user_id, user_id),
+        )
+        row = cursor.fetchone()
+        return row["organized_count"], row["joined_count"]
 
     def _list_meetups(self, query, params):
         cursor = get_db().execute(query, params)

@@ -26,7 +26,7 @@
     <p><strong>Event time:</strong> {{ meetup.event_time }}</p>
     <p><strong>Location:</strong> {{ meetup.location }}</p>
     {% if meetup.username %}
-    <p><strong>Organizer:</strong> {{ meetup.username }}</p>
+    <p><strong>Organizer:</strong> <a href="{{ url_for('app.user_profile', username=meetup.username) }}">{{ meetup.username }}</a></p>
     {% endif %}
 </section>
 

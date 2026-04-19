@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<section>
+    <h1>{{ profile_user.username }}</h1>
+    <p><strong>Organized meetups:</strong> {{ organized_count }}</p>
+    <p><strong>Joined other meetups:</strong> {{ joined_count }}</p>
+</section>
+
+<section>
+    <h2>Meetups by {{ profile_user.username }}</h2>
+
+    {% if meetups %}
+    {% for meetup in meetups %}
+    <article>
+        <h3>{{ meetup.title }}</h3>
+        <p>Category: {{ meetup.category_name or 'Uncategorized' }}</p>
+        <p><strong>Event time:</strong> {{ meetup.event_time }}</p>
+        <p><strong>Location:</strong> {{ meetup.location }}</p>
+        <p><a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">View details</a></p>
+        {% if is_owner %}
+        <p>
+            <a href="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">Edit meetup</a>
+        </p>
+        <form
+            method="post"
+            action="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}"
+            onsubmit="return confirm('Delete this meetup?');"
+        >
+            <button type="submit">Delete meetup</button>
+        </form>
+        {% endif %}
+    </article>
+    {% endfor %}
+    {% else %}
+    <p>No meetups yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
