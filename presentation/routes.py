@@ -262,18 +262,25 @@ def edit_meetup(meetup_id):
     )
 
 
-@app_blueprint.route("/meetups/<int:meetup_id>/delete", methods=["POST"])
+@app_blueprint.route("/meetups/<int:meetup_id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_meetup(meetup_id):
-    _validate_csrf_or_403()
-    try:
-        meetup_service.delete_meetup(meetup_id, _current_user_id())
-    except MeetupPermissionError:
+    meetup = _get_meetup_or_404(meetup_id)
+    if meetup.user_id != _current_user_id():
         abort(403)
-    except MeetupNotFoundError:
-        abort(404)
 
-    return redirect(url_for("app.index"))
+    if request.method == "POST":
+        _validate_csrf_or_403()
+        try:
+            meetup_service.delete_meetup(meetup_id, _current_user_id())
+        except MeetupPermissionError:
+            abort(403)
+        except MeetupNotFoundError:
+            abort(404)
+
+        return redirect(url_for("app.index"))
+
+    return render_template("delete_meetup.html", meetup=meetup)
 
 
 @app_blueprint.route("/meetups/<int:meetup_id>/join", methods=["POST"])

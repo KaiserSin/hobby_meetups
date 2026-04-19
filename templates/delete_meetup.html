@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Meetup{% endblock %}
+
+{% block content %}
+<section>
+    <p><a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a></p>
+</section>
+
+<section>
+    <h1>Delete meetup</h1>
+    <p>Are you sure you want to delete "{{ meetup.title }}"?</p>
+    <p>This will also remove all participant signups for this meetup.</p>
+
+    <form method="post" action="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <p>
+            <button type="submit">Delete meetup</button>
+            <a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Cancel</a>
+        </p>
+    </form>
+</section>
+{% endblock %}

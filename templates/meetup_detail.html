@@ -8,14 +8,7 @@
         <a href="{{ url_for('app.index') }}">Back to all meetups</a>
         {% if is_owner %}
         <a href="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">Edit meetup</a>
-        <form
-            method="post"
-            action="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}"
-            onsubmit="return confirm('Delete this meetup?');"
-        >
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <button type="submit">Delete meetup</button>
-        </form>
+        <a href="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}">Delete meetup</a>
         {% endif %}
     </p>
 </section>
