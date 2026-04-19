@@ -18,6 +18,7 @@
                 {% if current_user_id %}
                 <a href="{{ url_for('app.create_meetup') }}">Create meetup</a>
                 <form method="post" action="{{ url_for('app.logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <button type="submit">Logout</button>
                 </form>
                 {% else %}

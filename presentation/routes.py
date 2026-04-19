@@ -1,7 +1,9 @@
 from functools import wraps
+import secrets
 
 from flask import Blueprint, abort, redirect, render_template, request, session, url_for
 
+from application.security import generate_csrf_token
 from application.services import (
     AuthenticationError,
     MeetupNotFoundError,
@@ -21,11 +23,34 @@ meetup_service = MeetupService(MeetupRepository())
 
 @app_blueprint.app_context_processor
 def inject_user_state():
-    return {"current_user_id": _current_user_id()}
+    return {
+        "current_user_id": _current_user_id(),
+        "csrf_token": _ensure_csrf_token(),
+    }
 
 
 def _current_user_id():
     return session.get("user_id")
+
+
+def _ensure_csrf_token():
+    csrf_token = session.get("csrf_token")
+    if csrf_token is None:
+        csrf_token = generate_csrf_token()
+        session["csrf_token"] = csrf_token
+    return csrf_token
+
+
+def _rotate_csrf_token():
+    session["csrf_token"] = generate_csrf_token()
+    return session["csrf_token"]
+
+
+def _validate_csrf_or_403():
+    session_token = session.get("csrf_token")
+    form_token = request.form.get("csrf_token")
+    if not session_token or not form_token or not secrets.compare_digest(form_token, session_token):
+        abort(403)
 
 
 def _get_meetup_or_404(meetup_id):
@@ -48,6 +73,7 @@ def login_required(view):
 @app_blueprint.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        _validate_csrf_or_403()
         username = request.form.get("username", "")
         password = request.form.get("password", "")
 
@@ -63,12 +89,14 @@ def register():
 @app_blueprint.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        _validate_csrf_or_403()
         username = request.form.get("username", "")
         password = request.form.get("password", "")
 
         try:
             user = user_service.authenticate_user(username, password)
             session["user_id"] = user.id
+            _rotate_csrf_token()
             return redirect(url_for("app.index", status="logged_in"))
         except (UserValidationError, AuthenticationError) as error:
             return render_template("login.html", error_message=str(error))
@@ -87,6 +115,7 @@ def login():
 
 @app_blueprint.route("/logout", methods=["POST"])
 def logout():
+    _validate_csrf_or_403()
     session.pop("user_id", None)
     return redirect(url_for("app.index", status="logged_out"))
 
@@ -176,6 +205,7 @@ def create_meetup():
         )
 
     if request.method == "POST":
+        _validate_csrf_or_403()
         try:
             meetup_id = meetup_service.create_meetup(_current_user_id(), request.form)
             return redirect(url_for("app.meetup_detail", meetup_id=meetup_id))
@@ -209,6 +239,7 @@ def edit_meetup(meetup_id):
         )
 
     if request.method == "POST":
+        _validate_csrf_or_403()
         try:
             meetup_service.update_meetup(meetup_id, _current_user_id(), request.form)
             return redirect(url_for("app.meetup_detail", meetup_id=meetup_id))
@@ -234,6 +265,7 @@ def edit_meetup(meetup_id):
 @app_blueprint.route("/meetups/<int:meetup_id>/delete", methods=["POST"])
 @login_required
 def delete_meetup(meetup_id):
+    _validate_csrf_or_403()
     try:
         meetup_service.delete_meetup(meetup_id, _current_user_id())
     except MeetupPermissionError:
@@ -246,6 +278,7 @@ def delete_meetup(meetup_id):
 
 @app_blueprint.route("/meetups/<int:meetup_id>/join", methods=["POST"])
 def join_meetup(meetup_id):
+    _validate_csrf_or_403()
     meetup = _get_meetup_or_404(meetup_id)
     user_id = _current_user_id()
     if user_id is None:

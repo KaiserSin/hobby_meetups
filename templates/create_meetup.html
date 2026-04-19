@@ -10,6 +10,7 @@
 <section>
     <h1>Create meetup</h1>
     <form method="post" action="{{ url_for('app.create_meetup') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <p>
             <label for="title">Title</label>
         </p>

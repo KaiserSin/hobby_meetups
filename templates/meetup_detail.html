@@ -13,6 +13,7 @@
             action="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}"
             onsubmit="return confirm('Delete this meetup?');"
         >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <button type="submit">Delete meetup</button>
         </form>
         {% endif %}
@@ -40,6 +41,7 @@
     <p>You have already joined this meetup.</p>
     {% elif can_join %}
     <form method="post" action="{{ url_for('app.join_meetup', meetup_id=meetup.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <p>
             <label for="comment">Comment for the organizer</label>
         </p>
