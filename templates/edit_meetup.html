@@ -3,53 +3,48 @@
 {% block title %}Edit Meetup{% endblock %}
 
 {% block content %}
-<section>
-    <p><a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a></p>
+<section class="panel">
+    <div class="inline-actions">
+        <a class="button button-secondary" href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a>
+    </div>
 </section>
 
-<section>
-    <h1>Edit meetup</h1>
-    <form method="post" action="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">
+<section class="panel">
+    <h1 class="panel-title">Edit meetup</h1>
+    <form class="form" method="post" action="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <p>
-            <label for="title">Title</label>
-        </p>
-        <p>
-            <input id="title" name="title" type="text" value="{{ meetup.title }}" required>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="title">Title</label>
+            <input class="form-input" id="title" name="title" type="text" value="{{ meetup.title }}" required>
+        </div>
 
-        <p>
-            <label for="description">Description</label>
-        </p>
-        <p>
-            <textarea id="description" name="description" required>{{ meetup.description }}</textarea>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="description">Description</label>
+            <textarea class="form-textarea" id="description" name="description" required>{{ meetup.description }}</textarea>
+        </div>
 
-        <p>
-            <label for="event_time">Date and time</label>
-        </p>
-        <p>
+        <div class="form-row">
+            <label class="form-label" for="event_time">Date and time</label>
             <input
+                class="form-input"
                 id="event_time"
                 name="event_time"
                 type="datetime-local"
                 value="{{ meetup.event_time|string|replace(' ', 'T') }}"
                 required
             >
-        </p>
+        </div>
 
-        <p>
-            <label for="location">Location</label>
-        </p>
-        <p>
-            <input id="location" name="location" type="text" value="{{ meetup.location }}" required>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="location">Location</label>
+            <input class="form-input" id="location" name="location" type="text" value="{{ meetup.location }}" required>
+        </div>
 
-        <fieldset>
+        <fieldset class="form-fieldset">
             <legend>Categories</legend>
+            <div class="checkbox-list">
             {% for category in categories %}
-            <p>
-                <label>
+                <label class="checkbox-option">
                     <input
                         type="checkbox"
                         name="category_ids"
@@ -58,13 +53,13 @@
                     >
                     {{ category.name }}
                 </label>
-            </p>
             {% endfor %}
+            </div>
         </fieldset>
 
-        <p>
-            <button type="submit">Save changes</button>
-        </p>
+        <div class="panel-actions">
+            <button class="button" type="submit">Save changes</button>
+        </div>
     </form>
 </section>
 {% endblock %}

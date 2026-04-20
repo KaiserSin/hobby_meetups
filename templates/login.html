@@ -3,28 +3,24 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<section>
-    <h1>Login</h1>
-    <form method="post" action="{{ url_for('app.login') }}">
+<section class="panel">
+    <h1 class="panel-title">Login</h1>
+    <form class="form" method="post" action="{{ url_for('app.login') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <p>
-            <label for="username">Username</label>
-        </p>
-        <p>
-            <input id="username" name="username" type="text" required>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="username">Username</label>
+            <input class="form-input" id="username" name="username" type="text" required>
+        </div>
 
-        <p>
-            <label for="password">Password</label>
-        </p>
-        <p>
-            <input id="password" name="password" type="password" required>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-input" id="password" name="password" type="password" required>
+        </div>
 
-        <p>
-            <button type="submit">Login</button>
-            <a href="{{ url_for('app.register') }}">Create an account</a>
-        </p>
+        <div class="panel-actions">
+            <button class="button" type="submit">Login</button>
+            <a class="button button-secondary" href="{{ url_for('app.register') }}">Create an account</a>
+        </div>
     </form>
 </section>
 {% endblock %}

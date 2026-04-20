@@ -3,48 +3,62 @@
 {% block title %}Hobby Meetups{% endblock %}
 
 {% block content %}
-<section>
-    <h1>Browse meetups</h1>
-    <p>Search upcoming hobby events or create your own when you are logged in.</p>
+<section class="panel">
+    <h1 class="panel-title">Browse meetups</h1>
+    <p class="panel-subtitle">Search upcoming hobby events or create your own when you are logged in.</p>
 
-    <form method="get" action="{{ url_for('app.index') }}">
-        <p>
-            <label for="search_query">Search meetups</label>
-        </p>
-        <p>
+    <form class="form" method="get" action="{{ url_for('app.index') }}">
+        <div class="form-row">
+            <label class="form-label" for="search_query">Search meetups</label>
             <input
+                class="form-input"
                 id="search_query"
                 name="search_query"
                 type="text"
                 value="{{ search_query or '' }}"
                 placeholder="Board games, study group, Helsinki..."
             >
-        </p>
+        </div>
 
-        <p>
-            <button type="submit">Search</button>
+        <div class="panel-actions">
+            <button class="button" type="submit">Search</button>
             {% if search_query %}
-            <a href="{{ url_for('app.index') }}">Clear search</a>
+            <a class="button button-secondary" href="{{ url_for('app.index') }}">Clear search</a>
             {% endif %}
-        </p>
+        </div>
     </form>
 </section>
 
-<section>
-    <h2>All meetups</h2>
+<section class="panel">
+    <h2 class="panel-title">All meetups</h2>
 
     {% if meetups %}
-    {% for meetup in meetups %}
-    <article>
-        <h3>{{ meetup.title }}</h3>
-        <p>Categories: {{ meetup.category_name or 'Uncategorized' }}</p>
-        <p><strong>Event time:</strong> {{ meetup.event_time }}</p>
-        <p><strong>Location:</strong> {{ meetup.location }}</p>
-        <p><a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">View details</a></p>
-    </article>
-    {% endfor %}
+    <div class="card-list">
+        {% for meetup in meetups %}
+        <article class="card">
+            <h3>{{ meetup.title }}</h3>
+            <div class="meta-list">
+                <div class="meta-item">
+                    <span class="meta-label">Categories</span>
+                    <span>{{ meetup.category_name or 'Uncategorized' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Event time</span>
+                    <span>{{ meetup.event_time }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Location</span>
+                    <span>{{ meetup.location }}</span>
+                </div>
+            </div>
+            <div class="panel-actions">
+                <a class="button button-secondary" href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">View details</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
     {% else %}
-    <p>No meetups found.</p>
+    <p class="empty-state">No meetups found.</p>
     {% endif %}
 </section>
 {% endblock %}

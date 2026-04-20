@@ -3,57 +3,51 @@
 {% block title %}Create Meetup{% endblock %}
 
 {% block content %}
-<section>
-    <p><a href="{{ url_for('app.index') }}">Back to all meetups</a></p>
+<section class="panel">
+    <div class="inline-actions">
+        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
+    </div>
 </section>
 
-<section>
-    <h1>Create meetup</h1>
-    <form method="post" action="{{ url_for('app.create_meetup') }}">
+<section class="panel">
+    <h1 class="panel-title">Create meetup</h1>
+    <form class="form" method="post" action="{{ url_for('app.create_meetup') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <p>
-            <label for="title">Title</label>
-        </p>
-        <p>
-            <input id="title" name="title" type="text" required>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="title">Title</label>
+            <input class="form-input" id="title" name="title" type="text" required>
+        </div>
 
-        <p>
-            <label for="description">Description</label>
-        </p>
-        <p>
-            <textarea id="description" name="description" required></textarea>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="description">Description</label>
+            <textarea class="form-textarea" id="description" name="description" required></textarea>
+        </div>
 
-        <p>
-            <label for="event_time">Date and time</label>
-        </p>
-        <p>
-            <input id="event_time" name="event_time" type="datetime-local" required>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="event_time">Date and time</label>
+            <input class="form-input" id="event_time" name="event_time" type="datetime-local" required>
+        </div>
 
-        <p>
-            <label for="location">Location</label>
-        </p>
-        <p>
-            <input id="location" name="location" type="text" required>
-        </p>
+        <div class="form-row">
+            <label class="form-label" for="location">Location</label>
+            <input class="form-input" id="location" name="location" type="text" required>
+        </div>
 
-        <fieldset>
+        <fieldset class="form-fieldset">
             <legend>Categories</legend>
+            <div class="checkbox-list">
             {% for category in categories %}
-            <p>
-                <label>
+                <label class="checkbox-option">
                     <input type="checkbox" name="category_ids" value="{{ category.id }}">
                     {{ category.name }}
                 </label>
-            </p>
             {% endfor %}
+            </div>
         </fieldset>
 
-        <p>
-            <button type="submit">Create meetup</button>
-        </p>
+        <div class="panel-actions">
+            <button class="button" type="submit">Create meetup</button>
+        </div>
     </form>
 </section>
 {% endblock %}

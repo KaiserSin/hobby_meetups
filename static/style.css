@@ -1,0 +1,317 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f2f2f2;
+    color: #222222;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    color: #1e5aa8;
+}
+
+a:hover {
+    color: #123d72;
+}
+
+.page-shell {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 12px 40px;
+}
+
+.site-header {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+}
+
+.site-brand h1 {
+    margin: 0 0 8px;
+}
+
+.site-brand p {
+    margin: 0 0 16px;
+    color: #555555;
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.main-content {
+    display: grid;
+    gap: 16px;
+}
+
+.panel {
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+}
+
+.warning-panel {
+    background: #fff4f4;
+    border-color: #d7a4a4;
+}
+
+.panel-title {
+    margin: 0 0 10px;
+}
+
+.panel-subtitle {
+    margin: 0 0 16px;
+    color: #555555;
+}
+
+.panel-actions,
+.inline-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.status-message,
+.error-message {
+    padding: 12px 14px;
+    border: 1px solid #cccccc;
+    background: #ffffff;
+}
+
+.status-message {
+    border-left: 4px solid #2b7a2b;
+}
+
+.error-message {
+    border-left: 4px solid #b43a3a;
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid #1e5aa8;
+    background: #1e5aa8;
+    color: #ffffff;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background: #123d72;
+    border-color: #123d72;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.button-secondary {
+    background: #f7f7f7;
+    border-color: #999999;
+    color: #222222;
+}
+
+.button-secondary:hover {
+    background: #e8e8e8;
+    border-color: #777777;
+    color: #222222;
+}
+
+.button-danger {
+    background: #b43a3a;
+    border-color: #b43a3a;
+}
+
+.button-danger:hover {
+    background: #8e2e2e;
+    border-color: #8e2e2e;
+}
+
+.inline-form {
+    margin: 0;
+}
+
+.form {
+    display: grid;
+    gap: 14px;
+}
+
+.form-row {
+    display: grid;
+    gap: 6px;
+}
+
+.form-label,
+.form-fieldset legend {
+    font-weight: bold;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #999999;
+    background: #ffffff;
+    color: #222222;
+    font: inherit;
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-fieldset {
+    margin: 0;
+    padding: 12px;
+    border: 1px solid #cccccc;
+}
+
+.checkbox-list {
+    display: grid;
+    gap: 8px;
+}
+
+.checkbox-option {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.card-list {
+    display: grid;
+    gap: 14px;
+}
+
+.card {
+    padding: 16px;
+    border: 1px solid #cccccc;
+    background: #fafafa;
+}
+
+.card h3 {
+    margin: 0 0 10px;
+}
+
+.meta-list {
+    display: grid;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.meta-item {
+    display: grid;
+    gap: 2px;
+}
+
+.meta-label {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #555555;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.stat-card {
+    padding: 14px;
+    border: 1px solid #cccccc;
+    background: #fafafa;
+}
+
+.stat-card strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #555555;
+}
+
+.stat-card span {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.participant-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.participant-item {
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px solid #cccccc;
+    background: #fafafa;
+}
+
+.participant-item:last-child {
+    margin-bottom: 0;
+}
+
+.participant-name {
+    font-weight: bold;
+}
+
+.participant-comment {
+    margin-top: 6px;
+    color: #555555;
+}
+
+.empty-state {
+    color: #555555;
+}
+
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pagination-link {
+    display: inline-block;
+    min-width: 36px;
+    padding: 6px 10px;
+    border: 1px solid #999999;
+    background: #ffffff;
+    color: #222222;
+    text-align: center;
+    text-decoration: none;
+}
+
+@media (max-width: 640px) {
+    .page-shell {
+        padding: 12px 8px 24px;
+    }
+
+    .site-header,
+    .panel {
+        padding: 14px;
+    }
+
+    .site-nav,
+    .panel-actions,
+    .inline-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .button,
+    .button-secondary,
+    .button-danger {
+        width: 100%;
+        text-align: center;
+    }
+
+    .inline-form {
+        width: 100%;
+    }
+}

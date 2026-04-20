@@ -3,21 +3,23 @@
 {% block title %}Delete Meetup{% endblock %}
 
 {% block content %}
-<section>
-    <p><a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a></p>
+<section class="panel">
+    <div class="inline-actions">
+        <a class="button button-secondary" href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a>
+    </div>
 </section>
 
-<section>
-    <h1>Delete meetup</h1>
+<section class="panel warning-panel">
+    <h1 class="panel-title">Delete meetup</h1>
     <p>Are you sure you want to delete "{{ meetup.title }}"?</p>
     <p>This will also remove all participant signups for this meetup.</p>
 
-    <form method="post" action="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}">
+    <form class="form" method="post" action="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <p>
-            <button type="submit">Delete meetup</button>
-            <a href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Cancel</a>
-        </p>
+        <div class="panel-actions">
+            <button class="button button-danger" type="submit">Delete meetup</button>
+            <a class="button button-secondary" href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Cancel</a>
+        </div>
     </form>
 </section>
 {% endblock %}

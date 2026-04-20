@@ -3,29 +3,40 @@
 {% block title %}{{ meetup.title }}{% endblock %}
 
 {% block content %}
-<section>
-    <p>
-        <a href="{{ url_for('app.index') }}">Back to all meetups</a>
+<section class="panel">
+    <div class="inline-actions">
+        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
         {% if is_owner %}
-        <a href="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">Edit meetup</a>
-        <a href="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}">Delete meetup</a>
+        <a class="button" href="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">Edit meetup</a>
+        <a class="button button-danger" href="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}">Delete meetup</a>
         {% endif %}
-    </p>
+    </div>
 </section>
 
-<section>
-    <h1>{{ meetup.title }}</h1>
+<section class="panel">
+    <h1 class="panel-title">{{ meetup.title }}</h1>
     <p>{{ meetup.description }}</p>
-    <p>Categories: {{ meetup.category_name or 'Uncategorized' }}</p>
-    <p><strong>Event time:</strong> {{ meetup.event_time }}</p>
-    <p><strong>Location:</strong> {{ meetup.location }}</p>
+    <div class="meta-list">
+        <div class="meta-item">
+            <span class="meta-label">Categories</span>
+            <span>{{ meetup.category_name or 'Uncategorized' }}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Event time</span>
+            <span>{{ meetup.event_time }}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Location</span>
+            <span>{{ meetup.location }}</span>
+        </div>
+    </div>
     {% if meetup.username %}
     <p><strong>Organizer:</strong> <a href="{{ url_for('app.user_profile', username=meetup.username) }}">{{ meetup.username }}</a></p>
     {% endif %}
 </section>
 
-<section>
-    <h2>Join this meetup</h2>
+<section class="panel">
+    <h2 class="panel-title">Join this meetup</h2>
     {% if current_user_id is none %}
     <p><a href="{{ url_for('app.login') }}">Log in</a> to join this meetup and leave a short comment.</p>
     {% elif is_owner %}
@@ -33,39 +44,42 @@
     {% elif show_joined_note %}
     <p>You have already joined this meetup.</p>
     {% elif can_join %}
-    <form method="post" action="{{ url_for('app.join_meetup', meetup_id=meetup.id) }}">
+    <form class="form" method="post" action="{{ url_for('app.join_meetup', meetup_id=meetup.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <p>
-            <label for="comment">Comment for the organizer</label>
-        </p>
-        <p>
+        <div class="form-row">
+            <label class="form-label" for="comment">Comment for the organizer</label>
             <input
+                class="form-input"
                 id="comment"
                 name="comment"
                 type="text"
                 placeholder="I'll bring Monopoly!"
             >
-        </p>
-        <p>
-            <button type="submit">Join meetup</button>
-        </p>
+        </div>
+        <div class="panel-actions">
+            <button class="button" type="submit">Join meetup</button>
+        </div>
     </form>
     {% endif %}
 </section>
 
-<section>
-    <h2>Participants</h2>
+<section class="panel">
+    <h2 class="panel-title">Participants</h2>
     {% if join_events %}
-    <ul>
+    <ul class="participant-list">
         {% for join_event in join_events %}
-        <li>
-            <a href="{{ url_for('app.user_profile', username=join_event.username) }}">{{ join_event.username }}</a>
-            {% if join_event.comment %}: {{ join_event.comment }}{% endif %}
+        <li class="participant-item">
+            <div class="participant-name">
+                <a href="{{ url_for('app.user_profile', username=join_event.username) }}">{{ join_event.username }}</a>
+            </div>
+            {% if join_event.comment %}
+            <div class="participant-comment">{{ join_event.comment }}</div>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
     {% else %}
-    <p>No one has joined yet.</p>
+    <p class="empty-state">No one has joined yet.</p>
     {% endif %}
 </section>
 {% endblock %}
