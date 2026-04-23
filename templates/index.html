@@ -79,6 +79,9 @@
 
 <section class="panel">
     <h2 class="panel-title">All meetups</h2>
+    <p class="panel-subtitle">
+        Open a meetup to read the full description, see the organizer, and join it.
+    </p>
 
     {% if meetups %}
     <div class="card-list">
@@ -106,7 +109,7 @@
         {% endfor %}
     </div>
     {% else %}
-    <p class="empty-state">No meetups found.</p>
+    <p class="empty-state">No meetups found. Try another keyword or clear the search.</p>
     {% endif %}
 </section>
 {% endblock %}

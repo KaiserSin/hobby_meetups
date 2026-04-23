@@ -3,8 +3,20 @@
 {% block title %}{{ profile_user.username }}{% endblock %}
 
 {% block content %}
+<section class="panel panel-compact">
+    <div class="inline-actions">
+        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
+        {% if is_owner %}
+        <a class="button" href="{{ url_for('app.create_meetup') }}">Create meetup</a>
+        {% endif %}
+    </div>
+</section>
+
 <section class="panel">
     <h1 class="panel-title">{{ profile_user.username }}</h1>
+    <p class="panel-subtitle">
+        Public profile page with meetup statistics and created meetups.
+    </p>
     <div class="stats-grid">
         <div class="stat-card">
             <strong>Organized meetups</strong>
@@ -19,6 +31,9 @@
 
 <section class="panel">
     <h2 class="panel-title">Meetups by {{ profile_user.username }}</h2>
+    <p class="panel-subtitle">
+        Browse all meetups organized by this user.
+    </p>
 
     {% if meetups %}
     <div class="card-list">

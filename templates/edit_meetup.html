@@ -3,7 +3,7 @@
 {% block title %}Edit Meetup{% endblock %}
 
 {% block content %}
-<section class="panel">
+<section class="panel panel-compact">
     <div class="inline-actions">
         <a class="button button-secondary" href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a>
     </div>
@@ -11,6 +11,9 @@
 
 <section class="panel">
     <h1 class="panel-title">Edit meetup</h1>
+    <p class="panel-subtitle">
+        Update the meetup information and save your changes.
+    </p>
     <form class="form" method="post" action="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <div class="form-row">
@@ -59,6 +62,7 @@
 
         <div class="panel-actions">
             <button class="button" type="submit">Save changes</button>
+            <a class="button button-secondary" href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Cancel</a>
         </div>
     </form>
 </section>

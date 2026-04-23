@@ -3,8 +3,17 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
+<section class="panel panel-compact">
+    <div class="inline-actions">
+        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
+    </div>
+</section>
+
 <section class="panel">
     <h1 class="panel-title">Login</h1>
+    <p class="panel-subtitle">
+        Log in to create meetups, manage your own events, and join other users' meetups.
+    </p>
     <form class="form" method="post" action="{{ url_for('app.login') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <div class="form-row">

@@ -3,8 +3,17 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
+<section class="panel panel-compact">
+    <div class="inline-actions">
+        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
+    </div>
+</section>
+
 <section class="panel">
     <h1 class="panel-title">Create an account</h1>
+    <p class="panel-subtitle">
+        Register to organize your own meetups and join activities created by other users.
+    </p>
     <form class="form" method="post" action="{{ url_for('app.register') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <div class="form-row">

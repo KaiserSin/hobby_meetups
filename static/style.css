@@ -57,6 +57,10 @@ a:hover {
     border: 1px solid #cccccc;
 }
 
+.panel-compact {
+    padding: 14px 20px;
+}
+
 .warning-panel {
     background: #fff4f4;
     border-color: #d7a4a4;
@@ -194,6 +198,7 @@ a:hover {
     padding: 16px;
     border: 1px solid #cccccc;
     background: #fafafa;
+    overflow-wrap: break-word;
 }
 
 .card h3 {
@@ -293,7 +298,8 @@ a:hover {
     }
 
     .site-header,
-    .panel {
+    .panel,
+    .panel-compact {
         padding: 14px;
     }
 

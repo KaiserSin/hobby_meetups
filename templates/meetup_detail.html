@@ -3,7 +3,7 @@
 {% block title %}{{ meetup.title }}{% endblock %}
 
 {% block content %}
-<section class="panel">
+<section class="panel panel-compact">
     <div class="inline-actions">
         <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
         {% if is_owner %}
@@ -15,6 +15,9 @@
 
 <section class="panel">
     <h1 class="panel-title">{{ meetup.title }}</h1>
+    <p class="panel-subtitle">
+        Read the meetup details, check who organizes it, and decide whether to join.
+    </p>
     <p>{{ meetup.description }}</p>
     <div class="meta-list">
         <div class="meta-item">
@@ -37,6 +40,9 @@
 
 <section class="panel">
     <h2 class="panel-title">Join this meetup</h2>
+    <p class="panel-subtitle">
+        You can join another user's meetup and leave a short comment for the organizer.
+    </p>
     {% if current_user_id is none %}
     <p><a href="{{ url_for('app.login') }}">Log in</a> to join this meetup and leave a short comment.</p>
     {% elif is_owner %}
@@ -65,6 +71,9 @@
 
 <section class="panel">
     <h2 class="panel-title">Participants</h2>
+    <p class="panel-subtitle">
+        Participants are listed here together with any comment they left.
+    </p>
     {% if join_events %}
     <ul class="participant-list">
         {% for join_event in join_events %}
