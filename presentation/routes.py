@@ -302,7 +302,9 @@ def join_meetup(meetup_id):
         return redirect(url_for("app.login"))
 
     if meetup.user_id == user_id:
-        return redirect(url_for("app.meetup_detail", meetup_id=meetup_id, status="join_not_allowed"))
+        return redirect(
+            url_for("app.meetup_detail", meetup_id=meetup_id, status="join_not_allowed")
+        )
 
     if meetup_service.has_user_joined_meetup(meetup_id, user_id):
         return redirect(url_for("app.meetup_detail", meetup_id=meetup_id, status="already_joined"))

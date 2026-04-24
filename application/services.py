@@ -112,7 +112,13 @@ class MeetupService:
         return self.meetup_repository.create_join_event(meetup_id, user_id, stored_comment)
 
     def create_meetup(self, user_id, form_data):
-        category_ids, title, description, event_time, location = self._validate_meetup_data(form_data)
+        (
+            category_ids,
+            title,
+            description,
+            event_time,
+            location,
+        ) = self._validate_meetup_data(form_data)
         return self.meetup_repository.create_meetup(
             user_id,
             category_ids,
@@ -127,7 +133,13 @@ class MeetupService:
         if meetup.user_id != user_id:
             raise MeetupPermissionError("You can edit only your own meetups.")
 
-        category_ids, title, description, event_time, location = self._validate_meetup_data(form_data)
+        (
+            category_ids,
+            title,
+            description,
+            event_time,
+            location,
+        ) = self._validate_meetup_data(form_data)
         updated_rows = self.meetup_repository.update_meetup(
             meetup_id,
             user_id,
@@ -154,7 +166,11 @@ class MeetupService:
         description = form_data.get("description", "").strip()
         event_time = form_data.get("event_time", "").strip()
         location = form_data.get("location", "").strip()
-        raw_category_ids = [value.strip() for value in form_data.getlist("category_ids") if value.strip()]
+        raw_category_ids = [
+            value.strip()
+            for value in form_data.getlist("category_ids")
+            if value.strip()
+        ]
 
         if not title or not description or not event_time or not location:
             raise MeetupValidationError("All meetup fields are required.")

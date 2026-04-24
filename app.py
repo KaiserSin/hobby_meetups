@@ -7,19 +7,19 @@ from presentation.routes import app_blueprint
 
 
 def create_app():
-    app = Flask(__name__, instance_relative_config=True)
-    app.config["DATABASE"] = os.path.join(app.instance_path, "hobby_meetups.db")
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-secret-key")
+    flask_app = Flask(__name__, instance_relative_config=True)
+    flask_app.config["DATABASE"] = os.path.join(flask_app.instance_path, "hobby_meetups.db")
+    flask_app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-secret-key")
 
-    os.makedirs(app.instance_path, exist_ok=True)
+    os.makedirs(flask_app.instance_path, exist_ok=True)
 
-    init_app(app)
-    app.register_blueprint(app_blueprint)
+    init_app(flask_app)
+    flask_app.register_blueprint(app_blueprint)
 
-    with app.app_context():
+    with flask_app.app_context():
         init_db()
 
-    return app
+    return flask_app
 
 
 app = create_app()
