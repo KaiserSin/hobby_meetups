@@ -18,7 +18,7 @@
     <p class="panel-subtitle">
         Read the meetup details, check who organizes it, and decide whether to join.
     </p>
-    <p>{{ meetup.description }}</p>
+    <p class="user-text">{{ meetup.description }}</p>
     <div class="meta-list">
         <div class="meta-item">
             <span class="meta-label">Categories</span>
@@ -82,7 +82,7 @@
                 <a href="{{ url_for('app.user_profile', username=join_event.username) }}">{{ join_event.username }}</a>
             </div>
             {% if join_event.comment %}
-            <div class="participant-comment">{{ join_event.comment }}</div>
+            <div class="participant-comment user-text">{{ join_event.comment }}</div>
             {% endif %}
         </li>
         {% endfor %}

@@ -271,6 +271,11 @@ a:hover {
     color: #555555;
 }
 
+.user-text {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
 .empty-state {
     color: #555555;
 }
