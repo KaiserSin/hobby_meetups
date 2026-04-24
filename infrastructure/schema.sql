@@ -32,3 +32,12 @@ CREATE TABLE IF NOT EXISTS meetup_categories (
     category_id INTEGER NOT NULL REFERENCES categories(id),
     PRIMARY KEY (meetup_id, category_id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_meetups_event_time
+ON meetups(event_time, id);
+
+CREATE INDEX IF NOT EXISTS idx_meetups_user_id
+ON meetups(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_join_events_meetup_user_id
+ON join_events(meetup_id, user_id);
