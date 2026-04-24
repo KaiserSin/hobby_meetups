@@ -4,53 +4,7 @@
 
 {% block content %}
 <section class="panel">
-    <h1 class="panel-title">Find and organize hobby meetups</h1>
-    <p class="panel-subtitle">
-        Hobby Meetups is a simple web application for browsing local activities,
-        creating new meetup announcements, and joining other users' plans.
-    </p>
-
-    <div class="card-list">
-        <article class="card">
-            <h3>Meetup</h3>
-            <p>
-                A meetup contains a title, description, event time, location,
-                and one or more categories. Logged-in users can create, edit,
-                and delete the meetups they organize.
-            </p>
-        </article>
-
-        <article class="card">
-            <h3>Join event</h3>
-            <p>
-                Users can join another person's meetup and leave a short comment
-                for the organizer. Each meetup page shows the participant list
-                and the comments attached to that meetup.
-            </p>
-        </article>
-
-        <article class="card">
-            <h3>Search, categories, and profiles</h3>
-            <p>
-                Meetups can be searched with keywords such as title, location,
-                description, or category. Each user also has a profile page
-                with meetup statistics and a list of meetups they have created.
-            </p>
-        </article>
-    </div>
-
-    <div class="panel-actions">
-        {% if current_user_id %}
-        <a class="button" href="{{ url_for('app.create_meetup') }}">Create meetup</a>
-        {% else %}
-        <a class="button" href="{{ url_for('app.register') }}">Create an account</a>
-        <a class="button button-secondary" href="{{ url_for('app.login') }}">Login</a>
-        {% endif %}
-    </div>
-</section>
-
-<section class="panel">
-    <h2 class="panel-title">Search meetups</h2>
+    <h1 class="panel-title">Search meetups</h1>
     <p class="panel-subtitle">
         Browse all meetups below or narrow the list with a keyword.
     </p>
@@ -70,6 +24,9 @@
 
         <div class="panel-actions">
             <button class="button" type="submit">Search</button>
+            {% if current_user_id %}
+            <a class="button" href="{{ url_for('app.create_meetup') }}">Create meetup</a>
+            {% endif %}
             {% if search_query %}
             <a class="button button-secondary" href="{{ url_for('app.index') }}">Clear search</a>
             {% endif %}

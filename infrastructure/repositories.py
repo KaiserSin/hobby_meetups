@@ -44,9 +44,6 @@ class UserRepository:
     def find_by_username(self, username):
         return self._get_user("WHERE username = ?", (username,))
 
-    def get_user_by_id(self, user_id):
-        return self._get_user("WHERE id = ?", (user_id,))
-
     def _get_user(self, where_clause, params):
         cursor = get_db().execute(f"{USER_SELECT_SQL}\n{where_clause}", params)
         row = cursor.fetchone()
@@ -129,20 +126,18 @@ class MeetupRepository:
 
     def create_meetup(self, user_id, category_ids, title, description, event_time, location):
         db = get_db()
-        primary_category_id = category_ids[0]
         cursor = db.execute(
             """
             INSERT INTO meetups (
                 user_id,
-                category_id,
                 title,
                 description,
                 event_time,
                 location
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (user_id, primary_category_id, title, description, event_time, location),
+            (user_id, title, description, event_time, location),
         )
         self._replace_meetup_categories(db, cursor.lastrowid, category_ids)
         db.commit()
@@ -159,12 +154,10 @@ class MeetupRepository:
         location,
     ):
         db = get_db()
-        primary_category_id = category_ids[0]
         cursor = db.execute(
             """
             UPDATE meetups
             SET
-                category_id = ?,
                 title = ?,
                 description = ?,
                 event_time = ?,
@@ -172,7 +165,6 @@ class MeetupRepository:
             WHERE id = ? AND user_id = ?
             """,
             (
-                primary_category_id,
                 title,
                 description,
                 event_time,

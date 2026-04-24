@@ -32,8 +32,7 @@ class UserService:
             raise UserValidationError("Username already exists.")
 
         password_hash = generate_password_hash(clean_password)
-        user_id = self.user_repository.save_user(clean_username, password_hash)
-        return self.user_repository.get_user_by_id(user_id)
+        self.user_repository.save_user(clean_username, password_hash)
 
     def authenticate_user(self, username, password):
         clean_username = username.strip()
@@ -47,9 +46,6 @@ class UserService:
             raise AuthenticationError("Invalid username or password.")
 
         return user
-
-    def get_user_by_username(self, username):
-        return self.user_repository.find_by_username(username.strip())
 
 class MeetupService:
     def __init__(self, meetup_repository):
@@ -78,31 +74,11 @@ class MeetupService:
             "search_query": search_query,
         }
 
-    def list_meetups_by_user(self, user_id):
-        return self.meetup_repository.list_meetups_by_user(user_id)
-
-    def list_join_events_for_meetup(self, meetup_id):
-        return self.meetup_repository.list_join_events_for_meetup(meetup_id)
-
     def get_meetup(self, meetup_id):
         meetup = self.meetup_repository.get_meetup_by_id(meetup_id)
         if meetup is None:
             raise MeetupNotFoundError("Meetup not found.")
         return meetup
-
-    def get_user_profile_stats(self, user_id):
-        return self.meetup_repository.get_user_profile_stats(user_id)
-
-    def has_user_joined_meetup(self, meetup_id, user_id):
-        return self.meetup_repository.has_user_joined_meetup(meetup_id, user_id)
-
-    def get_categories(self):
-        return self.meetup_repository.list_categories()
-
-    def join_meetup(self, meetup_id, user_id, comment):
-        clean_comment = comment.strip()
-        stored_comment = clean_comment or None
-        return self.meetup_repository.create_join_event(meetup_id, user_id, stored_comment)
 
     def create_meetup(self, user_id, form_data):
         (
@@ -168,7 +144,7 @@ class MeetupService:
         if not title or not description or not event_time or not location:
             raise MeetupValidationError("All meetup fields are required.")
 
-        categories = self.get_categories()
+        categories = self.meetup_repository.list_categories()
         if not categories:
             raise MeetupValidationError(
                 "No categories are available. Add a category before creating or editing a meetup."

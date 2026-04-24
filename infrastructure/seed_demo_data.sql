@@ -30,7 +30,6 @@ VALUES (
 
 INSERT INTO meetups (
     user_id,
-    category_id,
     title,
     description,
     event_time,
@@ -38,13 +37,11 @@ INSERT INTO meetups (
 )
 SELECT
     users.id,
-    categories.id,
     'Board Game Night',
     'Casual board games with a mix of quick party games and longer strategy tables.',
     datetime('now', '+7 days'),
     'Central Library, Helsinki'
 FROM users
-JOIN categories ON categories.name = 'Board Games'
 WHERE users.username = 'demo_alina'
     AND NOT EXISTS (
         SELECT 1
@@ -56,7 +53,6 @@ WHERE users.username = 'demo_alina'
 
 INSERT INTO meetups (
     user_id,
-    category_id,
     title,
     description,
     event_time,
@@ -64,13 +60,11 @@ INSERT INTO meetups (
 )
 SELECT
     users.id,
-    categories.id,
     'Weekend Running Group',
     'A relaxed five kilometer run followed by coffee for anyone who wants to stay.',
     datetime('now', '+9 days'),
     'Toolonlahti Park, Helsinki'
 FROM users
-JOIN categories ON categories.name = 'Sports & Fitness'
 WHERE users.username = 'demo_boris'
     AND NOT EXISTS (
         SELECT 1
@@ -82,7 +76,6 @@ WHERE users.username = 'demo_boris'
 
 INSERT INTO meetups (
     user_id,
-    category_id,
     title,
     description,
     event_time,
@@ -90,13 +83,11 @@ INSERT INTO meetups (
 )
 SELECT
     users.id,
-    categories.id,
     'Python Study Circle',
     'Bring a small Python project or tutorial and work through it together with others.',
     datetime('now', '+12 days'),
     'Maria 01, Helsinki'
 FROM users
-JOIN categories ON categories.name = 'Tech & Coding'
 WHERE users.username = 'demo_chris'
     AND NOT EXISTS (
         SELECT 1
@@ -108,7 +99,6 @@ WHERE users.username = 'demo_chris'
 
 INSERT INTO meetups (
     user_id,
-    category_id,
     title,
     description,
     event_time,
@@ -116,13 +106,11 @@ INSERT INTO meetups (
 )
 SELECT
     users.id,
-    categories.id,
     'Watercolor Workshop',
     'A beginner-friendly evening for sketching simple city scenes with watercolors.',
     datetime('now', '+15 days'),
     'Annantalo Arts Centre, Helsinki'
 FROM users
-JOIN categories ON categories.name = 'Arts & Crafts'
 WHERE users.username = 'demo_daria'
     AND NOT EXISTS (
         SELECT 1
@@ -134,7 +122,6 @@ WHERE users.username = 'demo_daria'
 
 INSERT INTO meetups (
     user_id,
-    category_id,
     title,
     description,
     event_time,
@@ -142,13 +129,11 @@ INSERT INTO meetups (
 )
 SELECT
     users.id,
-    categories.id,
     'Open Mic Practice',
     'A low-pressure practice session for songs, short sets, poetry, or spoken word.',
     datetime('now', '+18 days'),
     'Kallio Community Room, Helsinki'
 FROM users
-JOIN categories ON categories.name = 'Music & Entertainment'
 WHERE users.username = 'demo_ella'
     AND NOT EXISTS (
         SELECT 1

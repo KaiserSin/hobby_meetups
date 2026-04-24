@@ -164,7 +164,6 @@ def _seed_meetups(connection, users, categories):
             continue
 
         owner = users[(meetup_number - 1) % len(users)]
-        category = categories[(meetup_number - 1) % len(categories)]
         event_time = first_event_time + timedelta(hours=meetup_number)
         topic = MEETUP_TOPICS[(meetup_number - 1) % len(MEETUP_TOPICS)]
         location = LOCATIONS[(meetup_number - 1) % len(LOCATIONS)]
@@ -175,7 +174,6 @@ def _seed_meetups(connection, users, categories):
         meetup_rows.append(
             (
                 owner["id"],
-                category["id"],
                 title,
                 description,
                 event_time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -187,13 +185,12 @@ def _seed_meetups(connection, users, categories):
         """
         INSERT INTO meetups (
             user_id,
-            category_id,
             title,
             description,
             event_time,
             location
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?)
         """,
         meetup_rows,
     )

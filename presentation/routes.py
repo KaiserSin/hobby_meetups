@@ -17,8 +17,10 @@ from application.services import (
 from infrastructure.repositories import MeetupRepository, UserRepository
 
 app_blueprint = Blueprint("app", __name__)
-user_service = UserService(UserRepository())
-meetup_service = MeetupService(MeetupRepository())
+user_repository = UserRepository()
+meetup_repository = MeetupRepository()
+user_service = UserService(user_repository)
+meetup_service = MeetupService(meetup_repository)
 MEETUPS_PER_PAGE = 5
 
 @app_blueprint.app_context_processor
@@ -142,12 +144,12 @@ def index():
 
 @app_blueprint.route("/user/<username>")
 def user_profile(username):
-    profile_user = user_service.get_user_by_username(username)
+    profile_user = user_repository.find_by_username(username.strip())
     if profile_user is None:
         abort(404)
 
-    organized_count, joined_count = meetup_service.get_user_profile_stats(profile_user.id)
-    meetups = meetup_service.list_meetups_by_user(profile_user.id)
+    organized_count, joined_count = meetup_repository.get_user_profile_stats(profile_user.id)
+    meetups = meetup_repository.list_meetups_by_user(profile_user.id)
     is_owner = _current_user_id() == profile_user.id
 
     return render_template(
@@ -164,7 +166,7 @@ def meetup_detail(meetup_id):
     meetup = _get_meetup_or_404(meetup_id)
     current_user_id = _current_user_id()
     is_owner = current_user_id == meetup.user_id
-    join_events = meetup_service.list_join_events_for_meetup(meetup_id)
+    join_events = meetup_repository.list_join_events_for_meetup(meetup_id)
     has_joined = current_user_id is not None and any(
         join_event["user_id"] == current_user_id for join_event in join_events
     )
@@ -194,7 +196,7 @@ def meetup_detail(meetup_id):
 @app_blueprint.route("/meetups/create", methods=["GET", "POST"])
 @login_required
 def create_meetup():
-    categories = meetup_service.get_categories()
+    categories = meetup_repository.list_categories()
     if not categories:
         return render_template(
             "create_meetup.html",
@@ -229,7 +231,7 @@ def edit_meetup(meetup_id):
     if meetup.user_id != _current_user_id():
         abort(403)
 
-    categories = meetup_service.get_categories()
+    categories = meetup_repository.list_categories()
     if not categories:
         return render_template(
             "edit_meetup.html",
@@ -294,11 +296,11 @@ def join_meetup(meetup_id):
             url_for("app.meetup_detail", meetup_id=meetup_id, status="join_not_allowed")
         )
 
-    if meetup_service.has_user_joined_meetup(meetup_id, user_id):
+    if meetup_repository.has_user_joined_meetup(meetup_id, user_id):
         return redirect(url_for("app.meetup_detail", meetup_id=meetup_id, status="already_joined"))
 
-    comment = request.form.get("comment", "")
-    meetup_service.join_meetup(meetup_id, user_id, comment)
+    comment = request.form.get("comment", "").strip() or None
+    meetup_repository.create_join_event(meetup_id, user_id, comment)
 
     return redirect(
         url_for(
