@@ -3,15 +3,14 @@
 {% block title %}{{ meetup.title }}{% endblock %}
 
 {% block content %}
+{% if is_owner %}
 <section class="panel panel-compact">
     <div class="inline-actions">
-        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
-        {% if is_owner %}
         <a class="button" href="{{ url_for('app.edit_meetup', meetup_id=meetup.id) }}">Edit meetup</a>
         <a class="button button-danger" href="{{ url_for('app.delete_meetup', meetup_id=meetup.id) }}">Delete meetup</a>
-        {% endif %}
     </div>
 </section>
+{% endif %}
 
 <section class="panel">
     <h1 class="panel-title">{{ meetup.title }}</h1>

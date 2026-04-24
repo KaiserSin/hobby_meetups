@@ -5,7 +5,6 @@ from flask import current_app, g
 
 INFRASTRUCTURE_DIR = Path(__file__).resolve().parent
 
-
 def get_db():
     if "db" not in g:
         connection = sqlite3.connect(current_app.config["DATABASE"])
@@ -15,13 +14,11 @@ def get_db():
 
     return g.db
 
-
 def close_db(_error=None):
     db = g.pop("db", None)
 
     if db is not None:
         db.close()
-
 
 def init_db():
     db = get_db()
@@ -34,15 +31,12 @@ def init_db():
     db.executescript(seed_demo_data_sql)
     db.commit()
 
-
 def init_app(app):
     app.teardown_appcontext(close_db)
-
 
 def _read_sql_file(filename):
     sql_file_path = INFRASTRUCTURE_DIR / filename
     return sql_file_path.read_text(encoding="utf-8")
-
 
 def _migrate_meetup_categories(db):
     db.execute(

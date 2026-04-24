@@ -1,18 +1,15 @@
 from dataclasses import dataclass
 
-
 @dataclass
 class User:
     id: int
     username: str
     password_hash: str
 
-
 @dataclass
 class Category:
     id: int
     name: str
-
 
 @dataclass
 class Meetup:

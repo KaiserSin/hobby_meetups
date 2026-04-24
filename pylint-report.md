@@ -11,7 +11,7 @@
 Final score:
 
 ```text
-Your code has been rated at 8.80/10
+Your code has been rated at 8.87/10
 ```
 
 ## Cleanup Completed
@@ -21,6 +21,9 @@ Your code has been rated at 8.80/10
   Flask application variable.
 * Removed the unused teardown callback argument warning in
   `infrastructure/database.py`.
+* Removed direct `werkzeug.security` imports from `application.services` so the
+  service module can be imported without Flask's dependencies being installed.
+* Removed extra blank lines between top-level Python definitions after feedback.
 * Verified the changed Python files with `py_compile`.
 
 ## Remaining Warning Categories

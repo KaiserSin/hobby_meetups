@@ -5,7 +5,6 @@ from flask import Flask
 from infrastructure.database import init_app, init_db
 from presentation.routes import app_blueprint
 
-
 def create_app():
     flask_app = Flask(__name__, instance_relative_config=True)
     flask_app.config["DATABASE"] = os.path.join(flask_app.instance_path, "hobby_meetups.db")
@@ -21,9 +20,7 @@ def create_app():
 
     return flask_app
 
-
 app = create_app()
-
 
 if __name__ == "__main__":
     app.run()

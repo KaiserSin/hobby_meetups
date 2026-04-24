@@ -1,7 +1,6 @@
 from domain.entities import Category, Meetup, User
 from infrastructure.database import get_db
 
-
 USER_SELECT_SQL = """
     SELECT id, username, password_hash
     FROM users
@@ -28,7 +27,6 @@ MEETUP_FROM_SQL = """
 """
 
 MEETUP_GROUP_BY_SQL = "\nGROUP BY meetups.id"
-
 
 class UserRepository:
     def save_user(self, username, password_hash):
@@ -62,7 +60,6 @@ class UserRepository:
             username=row["username"],
             password_hash=row["password_hash"],
         )
-
 
 class MeetupRepository:
     def list_meetups(self, search_query=None, page=1, page_size=5):

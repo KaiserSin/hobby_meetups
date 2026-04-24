@@ -1,27 +1,21 @@
 from datetime import datetime
 
-from werkzeug.security import check_password_hash, generate_password_hash
-
+from application.security import check_password_hash, generate_password_hash
 
 class UserValidationError(Exception):
     pass
 
-
 class AuthenticationError(Exception):
     pass
-
 
 class MeetupValidationError(Exception):
     pass
 
-
 class MeetupNotFoundError(Exception):
     pass
 
-
 class MeetupPermissionError(Exception):
     pass
-
 
 class UserService:
     def __init__(self, user_repository):
@@ -37,7 +31,7 @@ class UserService:
         if self.user_repository.find_by_username(clean_username) is not None:
             raise UserValidationError("Username already exists.")
 
-        password_hash = generate_password_hash(clean_password, method="pbkdf2:sha256")
+        password_hash = generate_password_hash(clean_password)
         user_id = self.user_repository.save_user(clean_username, password_hash)
         return self.user_repository.get_user_by_id(user_id)
 
@@ -56,7 +50,6 @@ class UserService:
 
     def get_user_by_username(self, username):
         return self.user_repository.find_by_username(username.strip())
-
 
 class MeetupService:
     def __init__(self, meetup_repository):
@@ -202,6 +195,9 @@ class MeetupService:
             parsed_event_time = datetime.fromisoformat(event_time)
         except ValueError as error:
             raise MeetupValidationError("Date and time are invalid.") from error
+
+        if parsed_event_time < datetime.now():
+            raise MeetupValidationError("Date and time cannot be in the past.")
 
         formatted_event_time = parsed_event_time.strftime("%Y-%m-%d %H:%M:%S")
         return category_ids, title, description, formatted_event_time, location

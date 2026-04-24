@@ -3,12 +3,6 @@
 {% block title %}Create Meetup{% endblock %}
 
 {% block content %}
-<section class="panel panel-compact">
-    <div class="inline-actions">
-        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
-    </div>
-</section>
-
 <section class="panel">
     <h1 class="panel-title">Create meetup</h1>
     <p class="panel-subtitle">
@@ -28,7 +22,14 @@
 
         <div class="form-row">
             <label class="form-label" for="event_time">Date and time</label>
-            <input class="form-input" id="event_time" name="event_time" type="datetime-local" required>
+            <input
+                class="form-input"
+                id="event_time"
+                name="event_time"
+                type="datetime-local"
+                min="{{ minimum_event_time }}"
+                required
+            >
         </div>
 
         <div class="form-row">

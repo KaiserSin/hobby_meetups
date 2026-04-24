@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import wraps
 import secrets
 
@@ -15,12 +16,10 @@ from application.services import (
 )
 from infrastructure.repositories import MeetupRepository, UserRepository
 
-
 app_blueprint = Blueprint("app", __name__)
 user_service = UserService(UserRepository())
 meetup_service = MeetupService(MeetupRepository())
 MEETUPS_PER_PAGE = 5
-
 
 @app_blueprint.app_context_processor
 def inject_user_state():
@@ -29,10 +28,8 @@ def inject_user_state():
         "csrf_token": _ensure_csrf_token(),
     }
 
-
 def _current_user_id():
     return session.get("user_id")
-
 
 def _ensure_csrf_token():
     csrf_token = session.get("csrf_token")
@@ -41,10 +38,8 @@ def _ensure_csrf_token():
         session["csrf_token"] = csrf_token
     return csrf_token
 
-
 def _rotate_csrf_token():
     session["csrf_token"] = generate_csrf_token()
-
 
 def _validate_csrf_or_403():
     session_token = session.get("csrf_token")
@@ -52,13 +47,11 @@ def _validate_csrf_or_403():
     if not session_token or not form_token or not secrets.compare_digest(form_token, session_token):
         abort(403)
 
-
 def _get_meetup_or_404(meetup_id):
     try:
         return meetup_service.get_meetup(meetup_id)
     except MeetupNotFoundError:
         abort(404)
-
 
 def _parse_page_number(raw_page):
     try:
@@ -67,6 +60,8 @@ def _parse_page_number(raw_page):
         return 1
     return max(1, page)
 
+def _minimum_event_time():
+    return datetime.now().strftime("%Y-%m-%dT%H:%M")
 
 def login_required(view):
     @wraps(view)
@@ -76,7 +71,6 @@ def login_required(view):
         return view(*args, **kwargs)
 
     return wrapped_view
-
 
 @app_blueprint.route("/register", methods=["GET", "POST"])
 def register():
@@ -92,7 +86,6 @@ def register():
             return render_template("register.html", error_message=str(error))
 
     return render_template("register.html")
-
 
 @app_blueprint.route("/login", methods=["GET", "POST"])
 def login():
@@ -120,13 +113,11 @@ def login():
 
     return render_template("login.html", status_message=status_message)
 
-
 @app_blueprint.route("/logout", methods=["POST"])
 def logout():
     _validate_csrf_or_403()
     session.pop("user_id", None)
     return redirect(url_for("app.index", status="logged_out"))
-
 
 @app_blueprint.route("/")
 def index():
@@ -149,7 +140,6 @@ def index():
         status_message=status_message,
     )
 
-
 @app_blueprint.route("/user/<username>")
 def user_profile(username):
     profile_user = user_service.get_user_by_username(username)
@@ -168,7 +158,6 @@ def user_profile(username):
         meetups=meetups,
         is_owner=is_owner,
     )
-
 
 @app_blueprint.route("/meetups/<int:meetup_id>")
 def meetup_detail(meetup_id):
@@ -202,7 +191,6 @@ def meetup_detail(meetup_id):
         error_message=error_message,
     )
 
-
 @app_blueprint.route("/meetups/create", methods=["GET", "POST"])
 @login_required
 def create_meetup():
@@ -211,6 +199,7 @@ def create_meetup():
         return render_template(
             "create_meetup.html",
             categories=[],
+            minimum_event_time=_minimum_event_time(),
             error_message="No categories are available. Add a category before creating a meetup.",
         )
 
@@ -223,14 +212,15 @@ def create_meetup():
             return render_template(
                 "create_meetup.html",
                 categories=categories,
+                minimum_event_time=_minimum_event_time(),
                 error_message=str(error),
             )
 
     return render_template(
         "create_meetup.html",
         categories=categories,
+        minimum_event_time=_minimum_event_time(),
     )
-
 
 @app_blueprint.route("/meetups/<int:meetup_id>/edit", methods=["GET", "POST"])
 @login_required
@@ -271,7 +261,6 @@ def edit_meetup(meetup_id):
         categories=categories,
     )
 
-
 @app_blueprint.route("/meetups/<int:meetup_id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_meetup(meetup_id):
@@ -291,7 +280,6 @@ def delete_meetup(meetup_id):
         return redirect(url_for("app.index"))
 
     return render_template("delete_meetup.html", meetup=meetup)
-
 
 @app_blueprint.route("/meetups/<int:meetup_id>/join", methods=["POST"])
 def join_meetup(meetup_id):

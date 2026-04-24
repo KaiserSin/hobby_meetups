@@ -4,7 +4,6 @@ import hashlib
 import sqlite3
 import sys
 
-
 USER_COUNT = 200
 MEETUP_COUNT = 5000
 JOIN_EVENT_COUNT = 20000
@@ -53,7 +52,6 @@ JOIN_COMMENTS = (
     "Happy to help with setup.",
 )
 
-
 def main():
     database_path = _get_database_path()
     with _connect_database(database_path) as connection:
@@ -65,7 +63,6 @@ def main():
         connection.commit()
         _print_summary(connection, database_path)
 
-
 def _get_database_path():
     if len(sys.argv) > 2:
         raise SystemExit("Usage: python seed.py [database_path]")
@@ -74,7 +71,6 @@ def _get_database_path():
         return Path(sys.argv[1]).expanduser().resolve()
 
     return DATABASE_PATH
-
 
 def _connect_database(database_path):
     if not database_path.exists():
@@ -86,7 +82,6 @@ def _connect_database(database_path):
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     return connection
-
 
 def _validate_database(connection):
     rows = connection.execute(
@@ -103,7 +98,6 @@ def _validate_database(connection):
         missing_table_list = ", ".join(missing_tables)
         raise SystemExit(f"Missing tables: {missing_table_list}. Initialize the app first.")
 
-
 def _fetch_categories(connection):
     categories = connection.execute(
         """
@@ -117,7 +111,6 @@ def _fetch_categories(connection):
         raise SystemExit("No categories found. Initialize the app database first.")
 
     return categories
-
 
 def _seed_users(connection):
     password_hash = _generate_password_hash(SEED_PASSWORD)
@@ -139,7 +132,6 @@ def _seed_users(connection):
 
     return users
 
-
 def _generate_password_hash(password):
     password_hash = hashlib.pbkdf2_hmac(
         "sha256",
@@ -148,7 +140,6 @@ def _generate_password_hash(password):
         PASSWORD_ITERATIONS,
     ).hex()
     return f"pbkdf2:sha256:{PASSWORD_ITERATIONS}${PASSWORD_SALT}${password_hash}"
-
 
 def _fetch_seed_users(connection):
     expected_usernames = {_user_name(user_number) for user_number in range(1, USER_COUNT + 1)}
@@ -161,7 +152,6 @@ def _fetch_seed_users(connection):
         """
     ).fetchall()
     return [row for row in rows if row["username"] in expected_usernames]
-
 
 def _seed_meetups(connection, users, categories):
     existing_meetups = _fetch_seed_meetups(connection)
@@ -215,7 +205,6 @@ def _seed_meetups(connection, users, categories):
     _seed_meetup_categories(connection, meetups, categories)
     return meetups
 
-
 def _fetch_seed_meetups(connection):
     expected_titles = {
         _meetup_title(meetup_number)
@@ -230,7 +219,6 @@ def _fetch_seed_meetups(connection):
         """
     ).fetchall()
     return {row["title"]: row for row in rows if row["title"] in expected_titles}
-
 
 def _seed_meetup_categories(connection, meetups, categories):
     category_rows = []
@@ -247,7 +235,6 @@ def _seed_meetup_categories(connection, meetups, categories):
         category_rows,
     )
 
-
 def _category_ids_for_meetup(meetup_number, categories):
     primary_category = categories[(meetup_number - 1) % len(categories)]
     category_ids = [primary_category["id"]]
@@ -258,7 +245,6 @@ def _category_ids_for_meetup(meetup_number, categories):
             category_ids.append(secondary_category["id"])
 
     return category_ids
-
 
 def _seed_join_events(connection, users, meetups):
     maximum_join_events = MEETUP_COUNT * (USER_COUNT - 1)
@@ -294,7 +280,6 @@ def _seed_join_events(connection, users, meetups):
         join_rows,
     )
 
-
 def _fetch_existing_join_pairs(connection):
     rows = connection.execute(
         """
@@ -305,7 +290,6 @@ def _fetch_existing_join_pairs(connection):
         """
     ).fetchall()
     return {(row["meetup_id"], row["user_id"]) for row in rows}
-
 
 def _print_summary(connection, database_path):
     seed_user_count = _count_rows(
@@ -339,18 +323,14 @@ def _print_summary(connection, database_path):
     print(f"Seed meetups: {seed_meetup_count}")
     print(f"Seed join events: {seed_join_event_count}")
 
-
 def _count_rows(connection, query):
     return connection.execute(query).fetchone()["row_count"]
-
 
 def _user_name(user_number):
     return f"seed_user_{user_number:04d}"
 
-
 def _meetup_title(meetup_number):
     return f"Seed Meetup {meetup_number:05d}"
-
 
 if __name__ == "__main__":
     main()

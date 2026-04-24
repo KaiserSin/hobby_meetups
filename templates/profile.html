@@ -3,14 +3,13 @@
 {% block title %}{{ profile_user.username }}{% endblock %}
 
 {% block content %}
+{% if is_owner %}
 <section class="panel panel-compact">
     <div class="inline-actions">
-        <a class="button button-secondary" href="{{ url_for('app.index') }}">Back to all meetups</a>
-        {% if is_owner %}
         <a class="button" href="{{ url_for('app.create_meetup') }}">Create meetup</a>
-        {% endif %}
     </div>
 </section>
+{% endif %}
 
 <section class="panel">
     <h1 class="panel-title">{{ profile_user.username }}</h1>
