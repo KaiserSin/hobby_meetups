@@ -19,6 +19,7 @@ from infrastructure.repositories import MeetupRepository, UserRepository
 app_blueprint = Blueprint("app", __name__)
 user_service = UserService(UserRepository())
 meetup_service = MeetupService(MeetupRepository())
+MEETUPS_PER_PAGE = 5
 
 
 @app_blueprint.app_context_processor
@@ -57,6 +58,14 @@ def _get_meetup_or_404(meetup_id):
         return meetup_service.get_meetup(meetup_id)
     except MeetupNotFoundError:
         abort(404)
+
+
+def _parse_page_number(raw_page):
+    try:
+        page = int(raw_page)
+    except (TypeError, ValueError):
+        return 1
+    return max(1, page)
 
 
 def login_required(view):
@@ -122,6 +131,7 @@ def logout():
 @app_blueprint.route("/")
 def index():
     search_query = request.args.get("search_query", "").strip()
+    page = _parse_page_number(request.args.get("page"))
     status = request.args.get("status")
     status_message = None
 
@@ -130,10 +140,11 @@ def index():
     elif status == "logged_out":
         status_message = "You have been logged out."
 
-    meetups = meetup_service.list_meetups(search_query)
+    pagination = meetup_service.list_meetups(search_query, page, MEETUPS_PER_PAGE)
     return render_template(
         "index.html",
-        meetups=meetups,
+        meetups=pagination["items"],
+        pagination=pagination,
         search_query=search_query,
         status_message=status_message,
     )

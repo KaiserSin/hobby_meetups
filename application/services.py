@@ -62,8 +62,28 @@ class MeetupService:
     def __init__(self, meetup_repository):
         self.meetup_repository = meetup_repository
 
-    def list_meetups(self, search_query):
-        return self.meetup_repository.list_meetups(search_query)
+    def list_meetups(self, search_query, page, page_size):
+        meetups, total_count, current_page = self.meetup_repository.list_meetups(
+            search_query,
+            page,
+            page_size,
+        )
+        total_pages = max(1, (total_count + page_size - 1) // page_size)
+        start_page = max(1, current_page - 2)
+        end_page = min(total_pages, current_page + 2)
+
+        return {
+            "items": meetups,
+            "total_count": total_count,
+            "current_page": current_page,
+            "total_pages": total_pages,
+            "has_prev": current_page > 1,
+            "has_next": current_page < total_pages,
+            "prev_page": current_page - 1,
+            "next_page": current_page + 1,
+            "page_numbers": list(range(start_page, end_page + 1)),
+            "search_query": search_query,
+        }
 
     def list_meetups_by_user(self, user_id):
         return self.meetup_repository.list_meetups_by_user(user_id)

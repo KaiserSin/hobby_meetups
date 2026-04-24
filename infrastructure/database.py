@@ -27,9 +27,11 @@ def init_db():
     db = get_db()
     schema_sql = _read_sql_file("schema.sql")
     seed_categories_sql = _read_sql_file("seed_categories.sql")
+    seed_demo_data_sql = _read_sql_file("seed_demo_data.sql")
     db.executescript(schema_sql)
     _migrate_meetup_categories(db)
     db.executescript(seed_categories_sql)
+    db.executescript(seed_demo_data_sql)
     db.commit()
 
 

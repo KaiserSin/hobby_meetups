@@ -18,6 +18,9 @@ MEETUP_SELECT_SQL = """
         GROUP_CONCAT(categories.id) AS category_ids,
         GROUP_CONCAT(categories.name, ', ') AS category_name,
         users.username
+"""
+
+MEETUP_FROM_SQL = """
     FROM meetups
     LEFT JOIN users ON users.id = meetups.user_id
     LEFT JOIN meetup_categories ON meetup_categories.meetup_id = meetups.id
@@ -62,26 +65,28 @@ class UserRepository:
 
 
 class MeetupRepository:
-    def list_meetups(self, search_query=None):
-        query = MEETUP_SELECT_SQL
-        params = ()
-        clean_search_query = (search_query or "").strip()
-        if clean_search_query:
-            like_query = f"%{clean_search_query}%"
-            query += """
-                WHERE
-                    meetups.title LIKE ?
-                    OR meetups.description LIKE ?
-                    OR meetups.location LIKE ?
-                    OR categories.name LIKE ?
-            """
-            params = (like_query, like_query, like_query, like_query)
+    def list_meetups(self, search_query=None, page=1, page_size=5):
+        where_clause, params = self._build_meetup_where_clause(search_query)
+        total_count = self._count_meetups(where_clause, params)
+        total_pages = max(1, (total_count + page_size - 1) // page_size)
+        current_page = min(max(1, page), total_pages)
+        offset = (current_page - 1) * page_size
 
-        query += f"{MEETUP_GROUP_BY_SQL}\nORDER BY meetups.event_time"
-        return self._list_meetups(query, params)
+        query = (
+            f"{MEETUP_SELECT_SQL}{MEETUP_FROM_SQL}{where_clause}"
+            f"{MEETUP_GROUP_BY_SQL}\n"
+            "ORDER BY meetups.event_time, meetups.id\n"
+            "LIMIT ? OFFSET ?"
+        )
+        meetups = self._list_meetups(query, params + (page_size, offset))
+        return meetups, total_count, current_page
 
     def list_meetups_by_user(self, user_id):
-        query = f"{MEETUP_SELECT_SQL}\nWHERE meetups.user_id = ?{MEETUP_GROUP_BY_SQL}\nORDER BY meetups.event_time"
+        query = (
+            f"{MEETUP_SELECT_SQL}{MEETUP_FROM_SQL}\n"
+            f"WHERE meetups.user_id = ?{MEETUP_GROUP_BY_SQL}\n"
+            "ORDER BY meetups.event_time"
+        )
         return self._list_meetups(query, (user_id,))
 
     def list_join_events_for_meetup(self, meetup_id):
@@ -106,7 +111,7 @@ class MeetupRepository:
 
     def get_meetup_by_id(self, meetup_id):
         cursor = get_db().execute(
-            f"{MEETUP_SELECT_SQL}\nWHERE meetups.id = ?{MEETUP_GROUP_BY_SQL}",
+            f"{MEETUP_SELECT_SQL}{MEETUP_FROM_SQL}\nWHERE meetups.id = ?{MEETUP_GROUP_BY_SQL}",
             (meetup_id,),
         )
         row = cursor.fetchone()
@@ -246,6 +251,35 @@ class MeetupRepository:
     def _list_meetups(self, query, params):
         cursor = get_db().execute(query, params)
         return [self._map_meetup(row) for row in cursor.fetchall()]
+
+    def _count_meetups(self, where_clause, params):
+        cursor = get_db().execute(
+            f"""
+            SELECT COUNT(DISTINCT meetups.id) AS total_count
+            {MEETUP_FROM_SQL}
+            {where_clause}
+            """,
+            params,
+        )
+        row = cursor.fetchone()
+        return row["total_count"]
+
+    def _build_meetup_where_clause(self, search_query):
+        clean_search_query = (search_query or "").strip()
+        if not clean_search_query:
+            return "", ()
+
+        like_query = f"%{clean_search_query}%"
+        return (
+            """
+            WHERE
+                meetups.title LIKE ?
+                OR meetups.description LIKE ?
+                OR meetups.location LIKE ?
+                OR categories.name LIKE ?
+            """,
+            (like_query, like_query, like_query, like_query),
+        )
 
     def _replace_meetup_categories(self, db, meetup_id, category_ids):
         db.execute(

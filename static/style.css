@@ -279,6 +279,7 @@ a:hover {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-top: 16px;
 }
 
 .pagination-link {
@@ -290,6 +291,12 @@ a:hover {
     color: #222222;
     text-align: center;
     text-decoration: none;
+}
+
+.pagination-current {
+    border-color: #1e5aa8;
+    background: #1e5aa8;
+    color: #ffffff;
 }
 
 @media (max-width: 640px) {
