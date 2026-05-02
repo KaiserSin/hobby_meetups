@@ -188,7 +188,6 @@ def meetup_detail(meetup_id):
         join_events=join_events,
         can_join=current_user_id is not None and not is_owner and not has_joined,
         has_joined=has_joined,
-        show_joined_note=has_joined and status not in {"joined", "already_joined"},
         status_message=status_message,
         error_message=error_message,
     )

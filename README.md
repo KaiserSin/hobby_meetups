@@ -41,6 +41,30 @@ For Windows:
 setup.bat
 ```
 
+If the setup scripts do not work, run the same steps manually.
+
+For macOS and Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install Flask
+python -c "from app import create_app; create_app(); print('Database initialized.')"
+python app.py
+```
+
+For Windows:
+
+```bat
+py -3 -m venv .venv
+.venv\Scripts\activate.bat
+python -m pip install --upgrade pip
+python -m pip install Flask
+python -c "from app import create_app; create_app(); print('Database initialized.')"
+python app.py
+```
+
 After startup, open:
 
 ```text

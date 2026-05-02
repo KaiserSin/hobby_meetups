@@ -25,7 +25,7 @@
         </div>
         <div class="meta-item">
             <span class="meta-label">Event time</span>
-            <span>{{ meetup.event_time }}</span>
+            <span>{{ meetup.event_time_label }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Location</span>
@@ -37,17 +37,20 @@
     {% endif %}
 </section>
 
+{% if not is_owner %}
 <section class="panel">
+    {% if has_joined %}
+    <h2 class="panel-title">You have already joined this meetup</h2>
+    {% else %}
     <h2 class="panel-title">Join this meetup</h2>
     <p class="panel-subtitle">
         You can join another user's meetup and leave a short comment for the organizer.
     </p>
+    {% endif %}
     {% if current_user_id is none %}
     <p><a href="{{ url_for('app.login') }}">Log in</a> to join this meetup and leave a short comment.</p>
-    {% elif is_owner %}
-    <p>You are organizing this meetup.</p>
-    {% elif show_joined_note %}
-    <p>You have already joined this meetup.</p>
+    {% elif has_joined %}
+    <p>Your signup is listed with the participants below.</p>
     {% elif can_join %}
     <form class="form" method="post" action="{{ url_for('app.join_meetup', meetup_id=meetup.id) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -67,6 +70,7 @@
     </form>
     {% endif %}
 </section>
+{% endif %}
 
 <section class="panel">
     <h2 class="panel-title">Participants</h2>

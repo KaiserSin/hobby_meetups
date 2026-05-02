@@ -3,12 +3,6 @@
 {% block title %}Delete Meetup{% endblock %}
 
 {% block content %}
-<section class="panel panel-compact">
-    <div class="inline-actions">
-        <a class="button button-secondary" href="{{ url_for('app.meetup_detail', meetup_id=meetup.id) }}">Back to meetup details</a>
-    </div>
-</section>
-
 <section class="panel warning-panel">
     <h1 class="panel-title">Delete meetup</h1>
     <p class="panel-subtitle">This action cannot be undone.</p>
