@@ -24,9 +24,6 @@
 
         <div class="panel-actions">
             <button class="button" type="submit">Search</button>
-            {% if current_user_id %}
-            <a class="button" href="{{ url_for('app.create_meetup') }}">Create meetup</a>
-            {% endif %}
             {% if search_query %}
             <a class="button button-secondary" href="{{ url_for('app.index') }}">Clear search</a>
             {% endif %}

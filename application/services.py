@@ -42,7 +42,10 @@ class UserService:
             raise UserValidationError("Username and password are required.")
 
         user = self.user_repository.find_by_username(clean_username)
-        if user is None or not check_password_hash(user.password_hash, clean_password):
+        if user is None:
+            raise AuthenticationError("No account found with that username.")
+
+        if not check_password_hash(user.password_hash, clean_password):
             raise AuthenticationError("Invalid username or password.")
 
         return user
